@@ -107,7 +107,7 @@ app.use(express.logger());
  * Connection and compilation 
  *
  */
- mongoo.connect('mongodb://localhost:27017/test');
+ mongoo.connect('mongodb://a10k:D0r1an_Gray@dharma.mongohq.com:10086/tenantwatcher');
  var tenantModel = mongoo.model('tenantModel',tenantSchema);
  var roomModel = mongoo.model('roomModel',roomSchema);
  var notificationModel = mongoo.model('notificationModel',notificationSchema);

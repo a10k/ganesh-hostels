@@ -29,6 +29,8 @@
  app.use(express.logger());
  app.use(express.bodyParser());
  app.enable('trust proxy');
+ app.use('/media', express.static(__dirname + '/media'));
+ app.use(express.static(__dirname + '/public'));
 
 
 

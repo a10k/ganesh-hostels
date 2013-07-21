@@ -1,0 +1,93 @@
+<html>
+<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript">
+	var myUrl = "http://api.geonames.org/citiesJSON?north=44.1&south=-9.9&east=-22.4&west=55.2&lang=de&username=demo";
+	var myUrl2="http://localhost:3000/notifications";
+	var myUrl3="http://ganesh-hostels.herokuapp.com/notifications";
+	var myUrl4="http://ganesh-hostels.herokuapp.com/tenants";
+	
+	var bewe = function(a){
+		
+		$.ajax({
+			url: a,
+			type:"GET",
+			success: function (result) {
+				//alert(result)
+				console.log(result); 
+			},
+			error: function (jqxhr, status, errorThrown) {
+				console.log("Failure, Unable to recieve content");
+				console.log(errorThrown);
+				console.log(jqxhr.responseText);
+			}
+		});
+	};
+	//bewe();
+
+	var newe = function(a){
+		$.getJSON(a, function(data) {
+    		// Now use this data to update your view models,
+    		// and Knockout will update your UI automatically
+    		console.log(data);
+    	});
+	};
+	//newe();
+
+	var will = function(a){
+		$.ajax({
+			type: "GET",
+			url: a,
+			data: ""
+		}).done( function(msg) {
+			alert( "Data Saved: " + msg );
+		}).fail( function( xmlHttpRequest, statusText, errorThrown ) {
+			alert(
+				"Your form submission failed.\n\n"
+				+ "XML Http Request: " + JSON.stringify( xmlHttpRequest )
+				+ ",\nStatus Text: " + statusText
+				+ ",\nError Thrown: " + errorThrown );
+		});
+
+	};
+	//will();
+
+	function calling(a){
+		var myurl="http://ganesh-hostels.herokuapp.com/";
+		var myjson={
+			"abc":"def"
+		};
+		$.ajax({
+			url: a,
+			type: 'post',
+			dataType: 'json',
+			success: function (data) {
+				console.log(data);
+			},
+			data: myjson
+		});
+	};
+	//calling();
+
+
+
+
+
+	var normal =function(a){
+
+		xmlhttp = new XMLHttpRequest();
+
+		xmlhttp.open("GET",a,false);
+		xmlhttp.send();
+		document.getElementById("result").innerHTML=xmlhttp.responseText;
+	};
+	normal(myUrl4);
+	</script>
+
+</head>
+<body>
+	<div class="result" id="result"></div>
+
+
+</body>
+</html>

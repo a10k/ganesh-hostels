@@ -592,7 +592,7 @@ app.use(express.logger());
 
  			return;
  		};
- 		zres.json(200,results);
+ 		zres.json(204,results);
  		
  	});
  };

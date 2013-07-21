@@ -615,7 +615,7 @@ app.use(express.logger());
  *
  */
 
- //app.use(express.bodyParser());
+ app.use(express.bodyParser());
 
  app.get('/tenants', function(req, res){
  	Show_All_Tenants(res);
@@ -629,7 +629,7 @@ app.use(express.logger());
 
 app.post('/',function(req,res){
 
-	res.send(req.body.abc);
+	res.send(req.body);
 
 });
 

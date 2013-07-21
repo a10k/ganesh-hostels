@@ -1,93 +1,73 @@
-<html>
+<!doctype html>
+<html ng-app>
 <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+
 	<script type="text/javascript">
-	var myUrl = "http://api.geonames.org/citiesJSON?north=44.1&south=-9.9&east=-22.4&west=55.2&lang=de&username=demo";
-	var myUrl2="http://localhost:3000/notifications";
-	var myUrl3="http://ganesh-hostels.herokuapp.com/notifications";
-	var myUrl4="http://ganesh-hostels.herokuapp.com/tenants";
+
+	zUrl1 = "../notifications";
+	zUrl2 = "../"
+	zData = {
+		"abc":"def"
+	};
 	
-	var bewe = function(a){
-		
-		$.ajax({
-			url: a,
-			type:"GET",
-			success: function (result) {
-				//alert(result)
-				console.log(result); 
-			},
-			error: function (jqxhr, status, errorThrown) {
-				console.log("Failure, Unable to recieve content");
-				console.log(errorThrown);
-				console.log(jqxhr.responseText);
-			}
-		});
-	};
-	//bewe();
-
-	var newe = function(a){
-		$.getJSON(a, function(data) {
-    		// Now use this data to update your view models,
-    		// and Knockout will update your UI automatically
-    		console.log(data);
-    	});
-	};
-	//newe();
-
-	var will = function(a){
-		$.ajax({
-			type: "GET",
-			url: a,
-			data: ""
-		}).done( function(msg) {
-			alert( "Data Saved: " + msg );
-		}).fail( function( xmlHttpRequest, statusText, errorThrown ) {
-			alert(
-				"Your form submission failed.\n\n"
-				+ "XML Http Request: " + JSON.stringify( xmlHttpRequest )
-				+ ",\nStatus Text: " + statusText
-				+ ",\nError Thrown: " + errorThrown );
-		});
-
-	};
-	//will();
-
-	function calling(a){
-		var myurl="http://ganesh-hostels.herokuapp.com/";
-		var myjson={
-			"abc":"def"
+	var zBuffer = function(z){
+		if(typeof(totalIndex)=="undefined" ){
+			totalIndex = 1 ;
 		};
-		$.ajax({
-			url: a,
-			type: 'post',
-			dataType: 'json',
-			success: function (data) {
-				console.log(data);
-			},
-			data: myjson
-		});
+		console.log(z);
+		console.log(totalIndex++);
 	};
-	//calling();
-
-
-
-
-
-	var normal =function(a){
-
-		xmlhttp = new XMLHttpRequest();
-
-		xmlhttp.open("GET",a,false);
-		xmlhttp.send();
-		document.getElementById("result").innerHTML=xmlhttp.responseText;
+	var zGet = function(u,d,cb){//function to get data 
+		$.ajax({ url: u, data: d, type: 'GET', dataType: 'json', success: cb });
 	};
-	normal(myUrl4);
+	var zPost = function (u,d,cb){//function to post data
+		$.ajax({ url: u, data: d, type: 'POST', dataType: 'json', success: cb });
+	};
+
+
+
+
+	//zPost(zUrl2,zData,zBuffer);
+
+	function cNotifications($scope) {
+
+
+			$scope.notifications;
+
+		var showNoti = function(z){
+			$scope.notifications.push(z);
+		};
+		
+
+		$scope.remaining = function() {
+			zGet(zUrl1,{},showNoti);
+			
+		};
+
+		$scope.archive = function() {
+			var oldTodos = $scope.todos;
+			$scope.todos = [];
+			angular.forEach(oldTodos, function(todo) {
+				if (!todo.done) $scope.todos.push(todo);
+			});
+		};
+	}
+
 	</script>
 
 </head>
 <body>
-	<div class="result" id="result"></div>
-
-
+	<h2>Notifications !!</h2>
+	<div ng-controller="cNotifications">
+		<span>{{notifications.length}} Notifications !</span>
+		<ul class="unstyled">{{remaining()}}
+			<li ng-repeat="noti in notifications">
+				<span>{{noti.notes}}</span>
+			</li>
+		</ul>
+	</div>
 </body>
 </html>

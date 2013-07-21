@@ -1,0 +1,65 @@
+<!doctype html>
+<html ng-app>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  
+
+
+  <script type="text/javascript">
+  'use strict';
+
+  /* Controllers */
+
+  function takeCtrl($scope, $http) {
+    $http({
+      url: "http://localhost:5000/",
+      dataType: "json",
+      method: "POST",
+      data: JSON.stringify({"foo":"bar"}),
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    }).success(function(response){
+      $scope.response = response;
+    }).error(function(error){
+      $scope.error = error;
+    });
+
+    $scope.orderProp = 'date';
+  }
+
+//takeCtrl.$inject = ['$scope', '$http'];
+</script>
+</head>
+<body ng-controller="takeCtrl">
+
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span2">
+        <!--Sidebar content-->
+
+        Search: <input ng-model="query">
+        Sort by:
+        <select ng-model="orderProp">
+          <option value="notes">Alphabetical</option>
+          <option value="date">Newest</option>
+        </select>
+
+      </div>
+      <div class="span10">
+        <!--Body content-->
+
+        <ul class="notifications">
+            {{response}}
+          <li ng-repeat="thing in response | filter:query | orderBy:orderProp">
+            <p>{{thing}}</p>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

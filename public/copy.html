@@ -1,0 +1,138 @@
+<!doctype html>
+<html ng-app>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" ng-autobind></script>
+  <link href = "http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+  
+
+
+  <script type="text/javascript">
+  'use strict';
+
+  /* Controllers */
+
+  function NotificationCtrl($scope, $http) {
+    $http.get('../notifications').success(function(data) {
+      $scope.notifications = data;
+      //console.log(data);
+    });
+
+
+    $http.get('../tenants').success(function(data) {
+      $scope.tenants = data;
+      //console.log(data);
+    });
+
+
+    $http.get('../rooms').success(function(data) {
+      $scope.rooms = data;
+      //console.log(data);
+    });
+
+    $scope.orderPropNotifications = 'date';
+
+
+
+    $scope.ShowRoomForId = function(par){
+      if(par && $scope && $scope.rooms && $scope.rooms.length ){
+        for (var i = $scope.rooms.length - 1; i >= 0; i--) {
+          if ($scope.rooms[i]._id == par) {
+            var R =  $scope.rooms[i].room +" - "+$scope.rooms[i].hostel;
+            return(R);
+          };
+        };
+      }
+    }
+
+    $scope.ShowNameForId = function(par){
+      if(par && $scope && $scope.tenants && $scope.tenants.length ){
+        for (var i = $scope.tenants.length - 1; i >= 0; i--) {
+          if ($scope.tenants[i]._id == par) {
+            var R =  $scope.tenants[i].name_initial.name +" ."+$scope.tenants[i].name_initial.intial;
+            return(R);
+          };
+        };
+      }
+    }
+
+    $scope.Mad = function(id){
+      $http.post('../',id).success(function(data) {
+        console.log(data);
+      });
+    }
+
+
+  }
+
+//NotificationCtrl.$inject = ['$scope', '$http'];
+</script>
+</head>
+<body ng-controller="NotificationCtrl">
+
+
+
+  Search: <input class="search-query" ng-model="query">
+  Sort by:
+  <select ng-model="orderPropNotifications">
+    <option value="notes">Alphabetical</option>
+    <option value="date">Newest</option>
+  </select>
+
+
+
+  <!--Body content-->
+
+
+
+        <!--<div>
+
+          <ul class="notifications">
+
+            <li ng-repeat="notification in notifications | filter:query | orderBy:orderPropNotifications">
+
+              <span>{{ShowRoomForId(notification.room_record);}}</span>
+
+              <span>{{ShowNameForId(notification.tenant_record);}}</span>
+
+              <span>{{notification.notes}} </span>
+
+              <span>{{notification._id}}</span>
+
+
+            </li>
+          </ul>
+        </div>-->
+        <div>
+
+          <table class="table table-hover notifications">
+            <thead>
+              <th><b>Room</b></th>
+              <th><b>Name</b></th>
+              <th><b>Notes</b></th>
+              <th><b>ID</b></th>
+              <th><b>Date</b></th>
+            </thead>
+
+            <tr ng-repeat="notification in notifications | filter:query | orderBy:orderPropNotifications">
+              <td>
+                <span ng-bind="ShowRoomForId(notification.room_record)"></span>
+              </td>
+              <td>
+                <span>{{ShowNameForId(notification.tenant_record) | uppercase }}</span>
+              </td>
+              <td><textarea rows="3" class="input-xxlarge" ng-model="notification.notes"></textarea></td>
+              <td>
+                <span>{{notification._id}}</span>
+              </td>
+              <td>
+                <span>{{notification.date  | date:'medium'}}</span>
+              </td>
+              
+              <td><button ng-click="Mad(notification)"></button></td>
+
+            </tr>
+          </table>
+        </div>
+
+      </body>
+      </html>

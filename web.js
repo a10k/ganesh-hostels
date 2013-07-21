@@ -1,23 +1,3 @@
-/*!
- * a10k - runtime
- * Copyright(c) 2013 alok pepakayala <unconfidential@ovi.com>
- * 
- *
- *
- *
- */
-
-/**
- * Main requires
- *
- *
- */
-var express = require("express");
-var app = express();
-app.use(express.logger());
-
-
-
 /**
  * Tenant Watcher !
  *
@@ -27,13 +7,33 @@ app.use(express.logger());
  *
  *
  *
- *
+ * a10k - runtime
  * Database schemas and methods.
  *
  */
 
+/*!
+ * 
+ * Copyright(c) 2013 alok pepakayala <unconfidential@ovi.com>
+ * 
+ *
+ *
+ *
+ */
+
+ var express = require("express");
+ var app = express();
  var mongoo = require('mongoose');
  var Schema = mongoo.Schema;
+
+ app.use(express.logger());
+ app.use(express.bodyParser());
+ app.enable('trust proxy');
+
+
+
+
+ 
 
 
 
@@ -112,6 +112,13 @@ app.use(express.logger());
  var roomModel = mongoo.model('roomModel',roomSchema);
  var notificationModel = mongoo.model('notificationModel',notificationSchema);
  var minionModel = mongoo.model('minionModel',minionSchema);
+
+
+
+
+
+
+
 
 
 
@@ -610,13 +617,13 @@ app.use(express.logger());
 
 
 
+
+
+
 /**
  * Handlers
  *
  */
-
- app.use(express.bodyParser());
-
  app.get('/tenants', function(req, res){
  	Show_All_Tenants(res);
  });
@@ -626,29 +633,9 @@ app.use(express.logger());
  app.get('/notifications', function(req,res){
  	Show_All_Notifications(res);
  });
-
-app.post('/',function(req,res){
-
-	res.send(req.body);
-
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ app.post('/',function(req,res){
+ 	res.send(req.body);
+ });
 
 
 
@@ -656,7 +643,7 @@ app.post('/',function(req,res){
  * Listeners
  *
  */
-var port = process.env.PORT || 5000;
-app.listen(port, function() {
-	console.log("Listening on " + port);
-});
+ var port = process.env.PORT || 5000;
+ app.listen(port, function() {
+ 	console.log("Listening on " + port);
+ });

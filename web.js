@@ -592,7 +592,7 @@ app.use(express.logger());
 
  			return;
  		};
- 		zres.json(204,results);
+ 		zres.json(results);
  		
  	});
  };
@@ -627,22 +627,19 @@ app.use(express.logger());
  	Show_All_Notifications(res);
  });
 
-/*app.post('/',function(req,res){
+app.post('/',function(req,res){
 
-	console.log(req.body.abc);
+	res.send(req.body.abc);
 
-});*/
-
-
-
-
-
-
-
-
-app.get('/', function(request, response) {
-	response.send('Hello World!');
 });
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,147 @@
+<html>
+<head></head>
+<body>
+<style type="text/css">
+.link { stroke: #ccc; }
+.routertext { pointer-events: none; font: 10px sans-serif; fill: #000000; }
+.routertext2 { pointer-events: none; font: 9px sans-serif; fill: #000000; }
+.linktext { pointer-events: none; font: 9px sans-serif; fill: #000000; }
+</style>
+<h1>D3 Examples !!</h1>
+<div id="canvas">
+</div>
+
+<script type="text/javascript" src="d3/d3.js"></script>
+<script type="text/javascript" src="d3/d3.layout.js"></script>
+<script type="text/javascript" src="d3/d3.geo"></script>
+<script type="text/javascript" src="d3/d3.geom.js"></script>
+
+
+<script type="text/javascript">
+
+var w = 960,
+    h = 600,
+    size = [w, h]; // width height    
+var vis = d3.select("#canvas").append("svg:svg")
+  .attr("width", w)
+  .attr("height", h)
+  .attr("transform", "translate(0,0) scale(1)")
+  .call(d3.behavior.zoom().on("zoom", redraw))
+  .attr("idx", -1)
+  .attr("idsel", -1)
+  ;
+
+var routers = {
+    nodes: [
+{id:0, name:"ROUTER-1", group:1, ip: "123.123.123.111", x:394.027, y:450.978,outif:"ge-0/1/0.0",inif:""},
+{id:1, name:"ROUTER-2", group:1, ip: "123.123.123.222", x:385.584, y:351.513,outif:"xe-4/2/0.0",inif:"ge-5/0/3.0"},
+{id:2, name:"ROUTER-3", group:1, ip: "123.123.123.333", x:473.457, y:252.27,outif:"ae1.0",inif:"xe-1/0/1.0"},
+{id:3, name:"ROUTER-4", group:2, ip: "123.123.123.444", x:723.106, y:266.569,outif:"as0.0",inif:"ae1.0"},
+{id:4, name:"ROUTER-5", group:3, ip: "123.123.123.555", x:728.14, y:125.287,outif:"so-4/0/2.0",inif:"as1.0"},
+{id:5, name:"ROUTER-6", group:3, ip: "123.123.123.666", x:738.975, y:-151.772,outif:"",inif:"PO0/2/2/1" }
+    ],
+    links: [
+{source:0, target:1, value:3, name:'link-1',speed:"1000mbps",outif:"ge-0/1/0.0",nextif:"ge-5/0/3.0"},
+{source:1, target:2, value:3, name:'link-2',speed:"10Gbps",outif:"xe-4/2/0.0",nextif:"xe-1/0/1.0"},
+{source:2, target:3, value:3, name:'link-3',speed:"20Gbps",outif:"ae1.0",nextif:"xe-1/2/1.0"},
+{source:3, target:4, value:3, name:'link-4',speed:"1Gbps",outif:"as0.0",nextif:"as1.0"},
+{source:4, target:5, value:3, name:'link-5',speed:"OC3", outif:"so-4/0/2.0",nextif:"PO0/2/2/1"}
+    ]
+};  
+
+var force = d3.layout.force()
+      .nodes(routers.nodes)
+      .links(routers.links)
+      .gravity(0)
+      .distance(100)
+      .charge(0)
+      .size([w, h])
+      .start();
+
+var link = vis.selectAll("g.link")
+      .data(routers.links)
+      .enter().append("svg:g");
+
+  link.append("svg:line")   
+      .attr("class","link")
+      .attr("title",function(d){return "From: "+d.outif+", To: "+d.nextif})
+      .attr("style", "stroke:#00d1d6;stroke-width:4px")
+      .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; })
+     ;
+
+  link.append("svg:text")
+      .attr("class", "linktext")
+      .attr("dx", function(d) { return d.source.x; })
+      .attr("dy", function(d) { return d.source.y; })
+      .text("some text to add...")
+      ;
+
+  var node = vis.selectAll("g.node")
+      .data(routers.nodes)
+        .enter().append("svg:g")
+        .attr("id", function(d) { return d.id;})
+        .attr("title", function(d) {return d.ip})
+      .attr("class", "node")
+      .attr("x", function(d) { return d.x; })
+      .attr("y", function(d) { return d.y; })
+      .on("dblclick",function(d) { alert('router double-clicked'); d3.event.stopPropagation();})
+      .on("mousedown", function(d) {
+        if (d3.event.which==3) {
+            d3.event.stopPropagation();
+                    alert('Router right-clicked');
+        }
+      })
+      .call(force.drag)
+      ;
+
+  node.append("svg:image")
+      .attr("class", "node")
+      .attr("xlink:href", "router.png")
+      .attr("x", -24)
+      .attr("y", -18)
+      .attr("width", 48)
+      .attr("height", 36);
+
+  node.append("svg:text")
+      .attr("class", "routertext")
+      .attr("dx", -30)
+      .attr("dy", 20)
+      .text(function(d) { return d.name });
+
+  node.append("svg:text")
+      .attr("class", "routertext2")
+      .attr("dx", 0)
+      .attr("dy", -20)
+      .attr("title", "some title to show....")
+      .text(function(d) { return d.outif })
+      .on("click", function(d,i) {alert("outif text clicked");})
+      .call(force.drag)
+            ;
+
+    node.append("svg:text")
+      .attr("class", "routertext2")
+      .attr("dx", -40)
+      .attr("dy", 30)
+      .text(function(d) { return d.inif });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+  });
+
+  function redraw() {
+    vis.attr("transform",
+      "translate(" + d3.event.translate + ")"
+      + "scale(" + d3.event.scale + ")");
+  }
+
+</script>
+</body>

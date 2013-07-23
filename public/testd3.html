@@ -1,0 +1,199 @@
+<html xmlns:xlink="http://www.w3.org/1999/xlink">
+<meta charset="utf-8">
+<style>
+
+path {
+  stroke: #fff;
+  fill-rule: evenodd;
+}
+
+</style>
+<body>
+ <!-- <iframe src="/flare.json" marginwidth="0" marginheight="0" scrolling="yes"></iframe>-->
+ <div id="notes"></div>
+ <script src="http://d3js.org/d3.v3.min.js"></script>
+ <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+ <script>
+ var fsi = function(d){
+  if(d ==0){
+   return 18;
+ }else if (d == 1 ){
+  return 14;
+}else if(d == 2 ){
+  return 12;
+}else if(d == 3){
+  return 6;
+}else{
+  return 0
+};
+
+} 
+
+var width = 960,
+height = 700,
+radius = Math.min(width, height) / 2;
+
+var x = d3.scale.linear()
+.range([0, 2 * Math.PI]);
+
+var y = d3.scale.linear()
+.range([0, radius]);
+
+var color = d3.scale.category20c();
+
+var svg = d3.select("body").append("svg")
+.attr("width", width)
+.attr("height", height)
+.append("g")
+.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+
+var partition = d3.layout.partition()
+.value(function(d) { return d.size; });
+
+var arc = d3.svg.arc()
+.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+.innerRadius(function(d) { return Math.max(0, y(d.y)); })
+.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+
+d3.json("flare.json", function(error, root) {
+  var g = svg.selectAll("g")
+  .data(partition.nodes(root))
+  .enter().append("g");
+
+
+
+  var path = g.append("path")
+  .attr("d", arc)
+  .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
+  .on("click", click);
+
+
+
+  var text = g.append("text")
+  .attr("transform", function(d) { 
+    var alok=computeTextRotation(d);
+    if(alok>=-90 && alok<=90){
+      return "rotate(" + computeTextRotation(d) + ")";
+        //return d.x < 180 ? null : "rotate(180)";
+      }else{
+        return "rotate(" +(alok-180)+ ")";
+      };
+    })
+
+
+  .attr("x", function(d) {
+    var alok = computeTextRotation(d);
+    if(alok>=-90 && alok<=90){
+      return y(d.y);
+    }else {
+
+      var lennn = $('<span></span>').css({display:'none',whiteSpace:'nowrap'}).appendTo($('body')).text(d.name).width();
+      return -(y(d.y) + (lennn)+6); 
+    }
+  })
+
+
+
+    .attr("dx", "6") // margin
+    .attr("dy", ".35em") // vertical-align
+
+
+
+    .attr("font-size",function(d){
+      return fsi(d.depth);
+    })
+
+    .text(function(d) { 
+      var shiv = fsi(d.depth);
+      var cssp = {
+        display:'none',
+        whiteSpace:'nowrap',
+        'font-size': shiv
+      };
+     // console.log(cssp);
+     var lennn = $('<span></span>').css(cssp).appendTo($('body')).text(d.name).width();
+     return d.name;
+
+   })
+
+
+    .on("click",function(d){document.getElementById('notes').innerText =d.name});
+
+
+
+
+
+
+
+
+
+    function click(d) {
+    // fade out all text elements
+    text.transition().attr("opacity", 0);
+
+    path.transition()
+    .duration(750)
+    .attrTween("d", arcTween(d))
+
+    .each("end", function(e, i) {
+          // check if the animated element's data e lies within the visible angle span given in d
+          if (e.x >= d.x && e.x < (d.x + d.dx)) {
+            // get a selection of the associated text element
+            var arcText = d3.select(this.parentNode).select("text");
+            // fade in the text element and recalculate positions
+            arcText.transition().duration(750)
+            .attr("opacity", 1)
+            .attr("font-size",function(d){
+              console.log(e);
+              return fsi(d.depth);
+            })
+            .attr("transform", function() { 
+              var alok=computeTextRotation(e);
+              if(alok>=-90 && alok<=90){
+                return "rotate(" + computeTextRotation(e) + ")";
+
+              }else{
+                return "rotate(" +(alok-180)+ ")";
+              };
+            })
+
+
+
+            .attr("x", function(d) {
+              var alok = computeTextRotation(d);
+              if(alok>=-90 && alok<=90){
+                return y(d.y);
+              }else {
+                var lennn = $('<span></span>').css({display:'none',whiteSpace:'nowrap'}).appendTo($('body')).text(d.name).width();
+                return -(y(d.y) + (lennn)+6); 
+              }
+
+            });
+          }
+        });
+
+
+}
+});
+
+d3.select(self.frameElement).style("height", height + "px");
+
+// Interpolate the scales!
+function arcTween(d) {
+  var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+  yd = d3.interpolate(y.domain(), [d.y, 1]),
+  yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+  return function(d, i) {
+    return i
+    ? function(t) { return arc(d); }
+    : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+  };
+}
+
+function computeTextRotation(d) {
+  return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+}
+
+</script>
+</body>

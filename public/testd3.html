@@ -15,19 +15,20 @@ path {
  <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
  <script>
  var fsi = function(d){
-  if(d ==0){
-   return 18;
- }else if (d == 1 ){
-  return 14;
-}else if(d == 2 ){
-  return 12;
-}else if(d == 3){
-  return 6;
-}else{
-  return 0
-};
-
+   if(d ==0){
+    return 20;
+  }else if (d == 1 ){
+    return 16;
+  }else if(d == 2 ){
+    return 9;
+  }else if(d == 3){
+    return 0;
+  }else{
+    return 0
+  };
 } 
+
+var koun = 0;
 
 var width = 960,
 height = 700,
@@ -83,13 +84,19 @@ d3.json("flare.json", function(error, root) {
 
 
   .attr("x", function(d) {
+    var k = d.depth - koun;
+    var cssp = {
+      display:'none',
+      whiteSpace:'nowrap',
+      'font-size': fsi(k)
+    };
     var alok = computeTextRotation(d);
     if(alok>=-90 && alok<=90){
       return y(d.y);
     }else {
 
-      var lennn = $('<span></span>').css({display:'none',whiteSpace:'nowrap'}).appendTo($('body')).text(d.name).width();
-      return -(y(d.y) + (lennn)+6); 
+      var lennn = $('<span></span>').css(cssp).appendTo($('body')).text(d.name).width();
+      return -(y(d.y) + (lennn)+ 12); 
     }
   })
 
@@ -129,6 +136,7 @@ d3.json("flare.json", function(error, root) {
 
 
     function click(d) {
+      koun = d.depth;
     // fade out all text elements
     text.transition().attr("opacity", 0);
 
@@ -145,8 +153,9 @@ d3.json("flare.json", function(error, root) {
             arcText.transition().duration(750)
             .attr("opacity", 1)
             .attr("font-size",function(d){
-              console.log(e);
-              return fsi(d.depth);
+              var k = d.depth-koun;
+
+              return fsi(k);
             })
             .attr("transform", function() { 
               var alok=computeTextRotation(e);
@@ -161,15 +170,23 @@ d3.json("flare.json", function(error, root) {
 
 
             .attr("x", function(d) {
-              var alok = computeTextRotation(d);
-              if(alok>=-90 && alok<=90){
-                return y(d.y);
-              }else {
-                var lennn = $('<span></span>').css({display:'none',whiteSpace:'nowrap'}).appendTo($('body')).text(d.name).width();
-                return -(y(d.y) + (lennn)+6); 
-              }
+              var k = d.depth - koun;
+              var cssp = {
+                display:'none',
+                whiteSpace:'nowrap',
+                'font-size': fsi(k)
+              };
+     // console.log(cssp);
+     
+     var alok = computeTextRotation(d);
+     if(alok>=-90 && alok<=90){
+      return y(d.y);
+    }else {
+      var lennn = $('<span></span>').css(cssp).appendTo($('body')).text(d.name).width();
+      return -(y(d.y) + (lennn) + 12); 
+    }
 
-            });
+  });
           }
         });
 

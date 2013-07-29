@@ -25,6 +25,13 @@
  var app = express();
  var mongoo = require('mongoose');
  var Schema = mongoo.Schema;
+ var schedule = require('node-schedule'); // for cron like scheduling
+ var rule = new schedule.RecurrenceRule(); //rule for cron like scheduling
+
+ 
+ rule.hour = [1,3,5,7,9,11,13,15,17,19,21,23]; //cron times
+ rule.minute =0; //cron times
+
 
  app.use(express.logger());
  app.use(express.bodyParser());
@@ -609,9 +616,23 @@
 
 
 
+/**
+ * Handlers
+ *
+ */
 
+ var fingermen = schedule.scheduleJob(rule, function(){
+		//Executes once per every 2 hrs !!
 
+		var Today = new Date();
+		var Tdate = Today.getDate();
+		var Tmonth = Today.getMonth();
 
+		console.log("doing");
+		
+
+		
+ });
 
 
 

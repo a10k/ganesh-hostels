@@ -61,6 +61,18 @@
       });
     }
 
+    $scope.makeroom = function(){
+      var d = {
+        "Proom":"T2",
+        "Phostel":"Reddy Apt",
+        "Pcapacity":3,
+        "Ptariff":5500
+      };
+      $http.post('../makeroom',d).success(function(data) {
+        console.log(data);
+      });
+    }
+
 
   }
 
@@ -129,6 +141,7 @@
               </td>
               
               <td><button ng-click="Mad(notification)"></button></td>
+              <td><button ng-click="makeroom()"></button></td>
 
             </tr>
           </table>

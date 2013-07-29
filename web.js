@@ -21,6 +21,8 @@
  *
  */
 
+ var Hello_I_am ="Pingu";
+
  var express = require("express");
  var app = express();
  var mongoo = require('mongoose');
@@ -30,8 +32,14 @@
 
  
  rule.hour = [1,3,5,7,9,11,13,15,17,19,21,23]; //cron times
- rule.minute =0; //cron times
+ rule.minute = 0; //cron times
 
+ //debug mode rule..
+ //rule.hour = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+ //rule.minute = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59];
+
+ //debug mode rule..
+ //rule.second = [0,20,30,40,50];
 
  app.use(express.logger());
  app.use(express.bodyParser());
@@ -311,33 +319,34 @@
 
 
 /*
- * Check if given room is unique
+ * Check if given room is unique and make room
  *
  * @Param: room
  * @Param: hostel
  *
  */
- var Check_Room_Unique =function(Proom,Phostel){
+ var Check_Room_Unique =function(Proom,Phostel,Pcapacity,Ptariff){
  	roomModel.find({room:Proom,hostel:Phostel},function(err,finding){
  		if (err) {
  			//sorry
  			//
  			//fail
 
- 			return;
+ 			return ;
  		} else if (finding.length > 0) {
  			//sorry
  			//
  			//fail
 
- 			console.log("Already declared !");
- 			return;
+ 			//console.log("Already declared !");
+ 			return ;
  		} else {
  			//done
  			//
  			//here
 
- 			console.log("The given room/hostel is unique !");
+ 			Create_Room(Proom,Phostel,Pcapacity,Ptariff);
+ 			//console.log("The given room/hostel is unique !");
  		};
  	})
  };
@@ -617,29 +626,171 @@
 
 
 /**
- * Handlers
+ * Initiate Minion !!
+ *
+ * Manually intiate the minion before using the app
+ * 
+ * makeMinion();
+ *
+ *
  *
  */
+ var makeMinion = function(){
+ 	var Today = new Date();
+ 	var Tdate = Today.getDate();
+ 	var Tmonth = Today.getMonth() + 1;
+ 	var Tyear = Today.getFullYear();
 
+ 	var test_minion = new minionModel();
+
+ 	test_minion.minion_last_notify.date = Tdate - 1; // initiated with yesterdays date so today's cron can also be used !
+ 	test_minion.minion_last_notify.month = Tmonth;
+ 	test_minion.minion_last_notify.year = Tyear;
+ 	test_minion.minion_action_stack[0] = "Initiated";
+ 	test_minion.minion_display_stack[0] = "Initiated";
+ 	test_minion.minion_memo = "Empty, Please Insert Text memo here.. ";
+ 	test_minion.minion_name = Hello_I_am;
+
+ 	test_minion.save(function(err){
+ 		if (err) {
+ 			//sorry
+ 			//
+ 			//fail
+
+ 			return;
+ 		};
+ 		console.log("Initiated Minion !!");
+ 		//done 
+ 		//
+ 		//here
+
+ 	});
+ };
+ //makeMinion();
+
+
+
+ /*
+ * Showing all Minions
+ *
+ */
+ var Show_All_Minions = function(zres){
+ 	minionModel.find({}, function (err, results) {
+ 		if (err) {
+ 			//sorry
+ 			//
+ 			//fail
+
+ 			return;
+ 		};
+ 		zres.json(results);
+ 		
+ 	});
+ };
+ //Show_All_Minions();
+
+
+
+ /**
+ * Fingermen Job - cron like scheduled function
+ *
+ */
  var fingermen = schedule.scheduleJob(rule, function(){
-		//Executes once per every 2 hrs !!
+	//Executes once per every 2 hrs !!
+	var Today = new Date();
+	var Tdate = Today.getDate();
+	var Tmonth = Today.getMonth() + 1;
+	var Tyear = Today.getFullYear();
+	minionModel.findOne({"minion_name":Hello_I_am},function (err, minio) {
+ 		if (err || !(minio)) {
+ 			// sorry
+ 			//
+ 			// fail
 
-		var Today = new Date();
-		var Tdate = Today.getDate();
-		var Tmonth = Today.getMonth();
+ 			return;
+ 		};
+ 		//now check if minio last notify is not today and proceed...
+ 		if (minio.minion_last_notify.date == Tdate &&
+ 		 minio.minion_last_notify.month == Tmonth &&
+ 		  minio.minion_last_notify.year == Tyear) {
+ 		  	// Do Nothing !
+ 		  	//
+ 		  	// Already updated notifications for today !!
 
-		console.log("doing");
-		
+ 		} else{
+ 			// Notification not updated today 
+ 			// 
+ 			// Update now !!
 
-		
+			if (Tdate == 29 && Tmonth == 2){
+ 				// Ignore this
+ 				//
+ 				// Date !!
+
+ 				return;
+ 			}else if (
+ 				(Tdate <= 27)||
+ 				((Tdate == 28)&&(Tmonth != 2))||
+ 				((Tdate == 29)&&(Tmonth != 2))||
+ 				(
+ 					(Tdate == 30)&&
+ 					((Tmonth == 1)||(Tmonth == 3)||(Tmonth == 5)||(Tmonth == 7)||(Tmonth == 8)||(Tmonth == 10)||(Tmonth == 12))
+ 				)||
+ 				(Tdate == 31)
+ 			   ){
+ 				// Normal dates
+ 				//
+ 				// Update for today only !!
+
+ 				tenantModel.find().where('date_month_year.date').equals(Tdate).exec(function(err,results){
+ 					if (err || !(results)) {
+ 						// sorry
+ 						//
+ 						// fail 
+
+ 					};
+ 					for (var i = results.length - 1; i >= 0; i--) {
+ 							// Done
+ 							//
+ 							// here
+
+ 							Create_Notification(results[i]._id);
+ 						};
+ 				});
+ 			} else{
+ 				// 28 feb and months with only 30 days get here
+ 				//
+ 				// Update records with date as today and above 
+
+ 				tenantModel.find().where('date_month_year.date').gte(Tdate).exec(function(err,results){
+ 					if (err || !(results)) {
+ 						//sorry
+ 						//
+ 						//fail
+
+ 					};
+ 					for (var i = results.length - 1; i >= 0; i--) {
+ 							// Done 
+ 							//
+ 							// here
+
+ 							Create_Notification(results[i]._id);
+ 						};
+ 				});
+ 			};
+ 			// Update the minion record
+ 			//
+ 			// here !! 
+
+ 			minio.minion_last_notify.date = Tdate;
+ 			minio.minion_last_notify.month = Tmonth;
+ 			minio.minion_last_notify.year = Tyear;
+ 			var mesg = "Updated Minion on " + Tdate + " - " + Tmonth + " - " + Tyear + " !!";  
+ 			minio.minion_action_stack.push(mesg);
+ 			minio.save();
+ 		};	
+ 	});
  });
-
-
-
-
-
-
-
 
 
 
@@ -647,6 +798,9 @@
  * Handlers
  *
  */
+ app.get('/minions', function(req, res){
+ 	Show_All_Minions(res);
+ });
  app.get('/tenants', function(req, res){
  	Show_All_Tenants(res);
  });
@@ -655,6 +809,12 @@
  });
  app.get('/notifications', function(req,res){
  	Show_All_Notifications(res);
+ });
+ app.post('/makeroom',function(req,res){
+ 	if ((req.body.Proom)&&(req.body.Phostel)&&(req.body.Pcapacity)&&(req.body.Ptariff)) {
+ 		Check_Room_Unique(req.body.Proom,req.body.Phostel,req.body.Pcapacity,req.body.Ptariff);
+ 		res.send(req.body);
+ 	};
  });
  app.post('/',function(req,res){
  	res.send(req.body);

@@ -13,9 +13,9 @@
  */
 
 /*!
- * 
+ *
  * Copyright(c) 2013 alok pepakayala <unconfidential@ovi.com>
- * 
+ *
  *
  *
  *
@@ -30,7 +30,7 @@
  var schedule = require('node-schedule'); // for cron like scheduling
  var rule = new schedule.RecurrenceRule(); //rule for cron like scheduling
 
- 
+
  rule.hour = [1,3,5,7,9,11,13,15,17,19,21,23]; //cron times
  rule.minute = 0; //cron times
 
@@ -41,6 +41,7 @@
  //debug mode rule..
  //rule.second = [0,20,30,40,50];
 
+ //not working app.use(express.favicon(__dirname + '/public/images/favicon.ico')); //Jan17,2014 from stackoveflow for favicon..
  app.use(express.logger());
  app.use(express.bodyParser());
  app.enable('trust proxy');
@@ -50,7 +51,8 @@
 
 
 
- 
+
+
 
 
 
@@ -97,7 +99,7 @@
  	tenant_record: Schema.Types.ObjectId,
  	room_record: Schema.Types.ObjectId,
  	notes: String,
- 	date:{ type: Date, default: Date.now }, 
+ 	date:{ type: Date, default: Date.now },
  });
 
 
@@ -121,7 +123,7 @@
 
 
 /*
- * Connection and compilation 
+ * Connection and compilation
  *
  */
  mongoo.connect('mongodb://a10k:D0r1an_Gray@dharma.mongohq.com:10086/tenantwatcher');
@@ -205,7 +207,7 @@
 				return;
 			};
 			console.log('Tenant Modified');
-			//done 
+			//done
 			//
 			//here
 
@@ -289,7 +291,7 @@
 /*
  * Creating a room,make sure room is unique
  *
- * 
+ *
  */
  var Create_Room = function(Proom,Phostel,Pcapacity,Ptariff){
  	if((typeof(Proom)=="string") && (typeof(Phostel)=="string") && (typeof(Pcapacity)=="number") && (typeof(Ptariff)=="number")){
@@ -307,7 +309,7 @@
  				return;
  			};
  			console.log("Saved Room %s in %s",Proom,Phostel);
- 			//done 
+ 			//done
  			//
  			//here
 
@@ -402,7 +404,7 @@
  			//fail
  			console.log("No Such room.");
  			return;
- 		};	
+ 		};
  		room.remove(function(err){
  			if (err) {
  				//sorry
@@ -422,7 +424,7 @@
 /*
  * Modify a room
  *
- * 
+ *
  */
  var Modify_Room = function(Proom_id,Proom,Phostel,Pcapacity,Ptariff){
  	if((Proom_id) && (typeof(Proom)=="string") && (typeof(Phostel)=="string") && (typeof(Pcapacity)=="number") && (typeof(Ptariff)=="number")){
@@ -442,7 +444,7 @@
 				return;
 			};
 			console.log('Room Modified');
-			//done 
+			//done
 			//
 			//here
 
@@ -498,7 +500,7 @@
 				//fail
 				return;
 			};
-			console.log('Saved notification');	
+			console.log('Saved notification');
 			var new_pending_pays = tenant.pending_pays + 1;
 			tenantModel.findByIdAndUpdate(tenant._id,{pending_pays:new_pending_pays},null,function(err){
 				if(err){
@@ -508,7 +510,7 @@
 					return;
 				};
 				console.log('Tenant pending pays Updated');
-				//done 
+				//done
 				//
 				//here
 
@@ -618,7 +620,7 @@
  			return;
  		};
  		zres.json(results);
- 		
+
  	});
  };
  //Show_All_Notifications();
@@ -629,7 +631,7 @@
  * Initiate Minion !!
  *
  * Manually intiate the minion before using the app
- * 
+ *
  * makeMinion();
  *
  *
@@ -660,7 +662,7 @@
  			return;
  		};
  		console.log("Initiated Minion !!");
- 		//done 
+ 		//done
  		//
  		//here
 
@@ -684,18 +686,48 @@
  			return;
  		};
  		zres.json(results);
- 		
+
  	});
  };
  //Show_All_Minions();
 
-
-
  /**
- * Fingermen Job - cron like scheduled function
+ * New Functions for date range
  *
  */
- var fingermen = schedule.scheduleJob(rule, function(){
+ Date.prototype.addDays = function(days) {
+   var dat = new Date(this.valueOf())
+   dat.setDate(dat.getDate() + days);
+   return dat;
+ }
+ function getDates(startDate, stopDate) {
+   var dateArray = new Array();
+   var currentDate = startDate;
+   while (currentDate <= stopDate) {
+     dateArray.push(currentDate)
+     currentDate = currentDate.addDays(1);
+   }
+   return dateArray;
+ }
+
+
+/**
+ * Test
+ *
+ *
+ var dateArray = getDates(new Date(1+'-'+24+'-'+2014), new Date());
+ for (dRangeI = 0; dRangeI < dateArray.length; dRangeI ++ ) {
+
+   console.log(dateArray[dRangeI].getDate());
+ }*/
+
+
+/**
+ * The job to be done by scheduler and also on app start..
+ *
+ *
+ */
+ var fingerJob = function(){
 	//Executes once per every 2 hrs !!
 	var Today = new Date();
 	var Tdate = Today.getDate();
@@ -718,8 +750,24 @@
  		  	// Already updated notifications for today !!
 
  		} else{
- 			// Notification not updated today 
- 			// 
+      /** copy new logic here..done **/
+       var dateArray = getDates(new Date(minio.minion_last_notify.month+'-'+minio.minion_last_notify.date+'-'+minio.minion_last_notify.year), new Date());
+       for (dRangeI = 0; dRangeI < dateArray.length; dRangeI ++ ) {
+         Today = dateArray[dRangeI];
+	       Tdate = Today.getDate();
+	       Tmonth = Today.getMonth() + 1;
+	       Tyear = Today.getFullYear();
+         //console.log(Tdate+" "+Tmonth+" "+Tyear);
+         if (minio.minion_last_notify.date == Tdate &&
+ 		 minio.minion_last_notify.month == Tmonth &&
+ 		  minio.minion_last_notify.year == Tyear) {
+ 		  	// Do Nothing !
+ 		  	//
+ 		  	// Already updated notifications for today !!
+
+ 		} else{
+      // Notification not updated today
+ 			//
  			// Update now !!
 
 			if (Tdate == 29 && Tmonth == 2){
@@ -727,7 +775,7 @@
  				//
  				// Date !!
 
- 				return;
+ 				//return;
  			}else if (
  				(Tdate <= 27)||
  				((Tdate == 28)&&(Tmonth != 2))||
@@ -746,7 +794,7 @@
  					if (err || !(results)) {
  						// sorry
  						//
- 						// fail 
+ 						// fail
 
  					};
  					for (var i = results.length - 1; i >= 0; i--) {
@@ -760,7 +808,7 @@
  			} else{
  				// 28 feb and months with only 30 days get here
  				//
- 				// Update records with date as today and above 
+ 				// Update records with date as today and above
 
  				tenantModel.find().where('date_month_year.date').gte(Tdate).exec(function(err,results){
  					if (err || !(results)) {
@@ -770,7 +818,7 @@
 
  					};
  					for (var i = results.length - 1; i >= 0; i--) {
- 							// Done 
+ 							// Done
  							//
  							// here
 
@@ -780,17 +828,26 @@
  			};
  			// Update the minion record
  			//
- 			// here !! 
+ 			// here !!
 
  			minio.minion_last_notify.date = Tdate;
  			minio.minion_last_notify.month = Tmonth;
  			minio.minion_last_notify.year = Tyear;
- 			var mesg = "Updated Minion on " + Tdate + " - " + Tmonth + " - " + Tyear + " !!";  
+ 			var mesg = "Updated Minion on " + Tdate + " - " + Tmonth + " - " + Tyear + " !!";
  			minio.minion_action_stack.push(mesg);
  			minio.save();
- 		};	
+    }
+         //for ends here
+      }
+ 		};
  	});
- });
+ }
+
+/**
+ * Fingermen Job - cron like scheduled function
+ *
+ */
+ var fingermen = schedule.scheduleJob(rule, fingerJob);
 
 
 
@@ -830,4 +887,9 @@
  var port = process.env.PORT || 5000;
  app.listen(port, function() {
  	console.log("Listening on " + port);
+  fingerJob(); //To perform the sceduled job also at startup..!
  });
+
+
+
+console.log("TENENT WATCHER APP \nALOK PEPAKAYALA");

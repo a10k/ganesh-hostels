@@ -1,10 +1,13 @@
 <!doctype html>
 <html ng-app>
 <head>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" ng-autobind></script>
-  <link href = "http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-  
-
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"
+          ng-autobind></script>
+  <link href = "http://twitter.github.com/bootstrap/assets/css/bootstrap.css"
+        rel="stylesheet">
+  <link rel="icon"
+      type="image/png"
+      href="/images/favicon.ico">
 
   <script type="text/javascript">
   'use strict';
@@ -79,8 +82,8 @@
 //NotificationCtrl.$inject = ['$scope', '$http'];
 </script>
 </head>
-<body ng-controller="NotificationCtrl">
-
+<body align="center" ng-controller="NotificationCtrl">
+    <img src="/images/logo_name.svg"/><br>
 
 
   Search: <input class="search-query" ng-model="query">
@@ -139,7 +142,7 @@
               <td>
                 <span>{{notification.date  | date:'medium'}}</span>
               </td>
-              
+
               <td><button ng-click="Mad(notification)"></button></td>
               <td><button ng-click="makeroom()"></button></td>
 

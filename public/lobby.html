@@ -12,58 +12,49 @@ TODO:
 	*HEADER 
 	*Footer
 	*Room table
-	*
+	*delete room
+	*modify room
+	*make room
 
 -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" ng-autobind></script>
+	<script src="/angular.min.js" ng-autobind></script>
 	<script src="/tenantwatcher.js"></script>
 	<link rel="icon" type="image/png" href="/images/favicon.ico">
 	<link href = "/bootstrap/css/bootstrap.css" rel="stylesheet">
 </head>
-<body align="center" ng-controller="NotificationCtrl">
+<body align="center" ng-controller="lobbyControl">
 
 	<!--Insert the main image logo here -->
 	<img src="/images/logo_name.svg"/><br>
 
+	<!--Search the table with a cool search bar-->
+	<input class="search-query" ng-model="query"><i class="icon-search"></i>
 
-	Search: <input class="search-query" ng-model="query">
-	Sort by:
-	<select ng-model="orderPropNotifications">
-		<option value="notes">Alphabetical</option>
-		<option value="date">Newest</option>
-	</select>
-      <div>
 
-      	<table class="table table-hover notifications">
-      		<thead>
-      			<th><b>Room</b></th>
-      			<th><b>Name</b></th>
-      			<th><b>Notes</b></th>
-      			<th><b>ID</b></th>
-      			<th><b>Date</b></th>
-      		</thead>
+	<!--Entire table markup -->
+	<table style="width: 50%"  class="table table-hover " align="center">
+		<thead>
+			<th></th>
+			<th><a href="" ng-click="orderPropNotifications = 'room'; reverse=!reverse">Room</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'hostel'; reverse=!reverse">Hostel</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'occupants'; reverse=!reverse">Occupants</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'capacity'; reverse=!reverse">Capacity</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'tariff'; reverse=!reverse">Tariff</a></th>
+		</thead>
 
-      		<tr ng-repeat="notification in notifications | filter:query | orderBy:orderPropNotifications">
-      			<td>
-      				<span ng-bind="ShowRoomForId(notification.room_record)"></span>
-      			</td>
-      			<td>
-      				<span>{{ShowNameForId(notification.tenant_record) | uppercase }}</span>
-      			</td>
-      			<td><textarea rows="3" class="input-xxlarge" ng-model="notification.notes"></textarea></td>
-      			<td>
-      				<span>{{notification._id}}</span>
-      			</td>
-      			<td>
-      				<span>{{notification.date  | date:'medium'}}</span>
-      			</td>
+		<tr ng-repeat="room in rooms | filter:query | orderBy:orderPropNotifications:reverse" class="{{getRoomStatus(room.occupants ,room.capacity,checked) }}" >
+			<td>
+				<a href="" ng-click="checked= !checked" ng-hide="checked == 1"><i ng-click="saveRoom(room._id,room.room,room.hostel,room.capacity,room.tariff)" class="icon-ok"></i></a>
+				<a href="" ng-click="checked= !checked" ng-hide="checked == 0"><i class="icon-pencil"></i></a>
+			</td>
+			<td><input type="text"  class="input-small" ng-readonly="checked"  ng-model="room.room" value="{{room.room}}"></td>
+			<td><input type="text"  class="input-small" ng-readonly="checked"  ng-model="room.hostel" value="{{room.hostel}}"></td>
+			<td><span ng-bind="room.occupants"></span></td>
+			<td><input type="text"  class="input-mini" ng-readonly="checked"  ng-model="room.capacity" value="{{room.capacity}}"></td>
+			<td><input type="text"  class="input-mini" ng-readonly="checked"  ng-model="room.tariff" value="{{room.tariff}}"></span></td>
+			<td><a href="" ng-hide="room.occupants != 0 " ng-click="removeRoom(room._id)"><i ng-hide="checked == 0"class="icon-remove-circle"></a></td>
+		</tr>
+	</table>
 
-      			<td><button ng-click="Mad(notification)"></button></td>
-      			<td><button ng-click="makeroom()"></button></td>
-
-      		</tr>
-      	</table>
-      </div>
-
-  </body>
-  </html>
+</body>
+</html>

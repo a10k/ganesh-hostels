@@ -1,60 +1,79 @@
-/*
- *
- * Front end javascript functions for TENANT Watcher !
- *
- *
- * Alok Pepakayala (c)
- */
-//alert("Loaded Script Succesfully !! ");
-	'use strict';
-	/* Controllers */
-
-	/*
-	* Function to get all notification objects
+        /**
 	*
-	*/
-	function NotificationCtrl($scope, $http) {
-		$http.get('../notifications').success(function(data) {
-			$scope.notifications = data;
-		//console.log(data);
-  	});
+ 	* Front end javascript functions for TENANT Watcher !
+ 	*
+ 	*
+ 	* Alok Pepakayala (c)
+ 	*/
 
+'use strict';
+/* Controllers */
 
-	$http.get('../tenants').success(function(data) {
-		$scope.tenants = data;
-      	//console.log(data);
-  	});
+/*
+ * Room lobby page ng controller
+ *
+ */
+ function lobbyControl($scope, $http) {
 
+ 	$scope.refreshView = function(){
+ 		$http.get('../rooms').success(function(data) {
+ 			$scope.rooms = data;
+ 			$http.get('../tenants').success(function(data) {
+ 				$scope.tenants = data;
+ 				for (var i = $scope.rooms.length - 1; i >= 0; i--) {
+					//append occupants to room object here
+					$scope.rooms[i]. occupants = $scope.tenantsPerRoom($scope.rooms[i]._id);
+				};
+			});
+ 		});
+ 	}
 
-	$http.get('../rooms').success(function(data) {
-		$scope.rooms = data;
-      	//console.log(data);
-  	});
-
-	$scope.orderPropNotifications = 'date';
-
-
-
-	$scope.ShowRoomForId = function(par){
-		if(par && $scope && $scope.rooms && $scope.rooms.length ){
-			for (var i = $scope.rooms.length - 1; i >= 0; i--) {
-				if ($scope.rooms[i]._id == par) {
-					var R =  $scope.rooms[i].room +" @ "+$scope.rooms[i].hostel;
-					return(R);
+	$scope.tenantsPerRoom = function(roomId){
+		var occupantCount = 0;
+		if(roomId && $scope && $scope.tenants && $scope.tenants.length ){
+			for (var i = $scope.tenants.length - 1; i >= 0; i--) {
+				if ($scope.tenants[i].room_record == roomId) {
+					occupantCount = occupantCount + 1;
 				};
 			};
+		}
+		return occupantCount;
+	}
+
+	$scope.getRoomStatus = function(occupants,capacity,checked){
+		if (checked == 0) {
+			return "info";
+		};
+		if (occupants ==0) {
+			return "error";
+		};
+		if (capacity - occupants == 0) {
+			return "success";
+		}else{
+			return "warning";
 		}
 	}
 
-	$scope.ShowNameForId = function(par){
-		if(par && $scope && $scope.tenants && $scope.tenants.length ){
-			for (var i = $scope.tenants.length - 1; i >= 0; i--) {
-				if ($scope.tenants[i]._id == par) {
-					var R =  $scope.tenants[i].name_initial.name +"  "+$scope.tenants[i].name_initial.intial;
-					return(R);
-				};
-			};
-		}
+	$scope.saveRoom = function(id,room,hostel,capacity,tariff){
+		var temp = {
+			"Proom_id":id,
+			"Proom":room,
+			"Phostel":hostel,
+			"Pcapacity":capacity,
+			"Ptariff":tariff
+		};
+		$http.post('../modifyroom',temp).success(function(data) {
+			$scope.refreshView();
+		});
+	}
+
+	$scope.removeRoom = function(id){
+		var temp = {
+			"roomID":id
+		};
+		$http.post('../removeroom',temp).success(function(data) {
+			$scope.refreshView();
+		});
 	}
 
 	$scope.Mad = function(id){
@@ -65,13 +84,18 @@
 
 	$scope.makeroom = function(){
 		var d = {
-			"Proom":"T2",
+			"Proom":"G1",
 			"Phostel":"Reddy Apt",
 			"Pcapacity":3,
 			"Ptariff":5500
 		};
 		$http.post('../makeroom',d).success(function(data) {
 			console.log(data);
+			$scope.refreshView();
 		});
 	}
-	}
+	$scope.makeroom();
+
+	$scope.checked = 1;
+ 	$scope.refreshView();
+}

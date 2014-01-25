@@ -357,12 +357,12 @@
 
 
  /*
- * Check if given room is vacant
+ * Check if given room is vacant and remove it !
  *
  * @Param: room id
  *
  */
- var Check_Room_Vacant =function(Proom_id){
+ var Check_Room_Vacant =function(Proom_id,req,res){
  	tenantModel.find({room_record:Proom_id},function(err,finding){
  		if (err) {
  			//sorry
@@ -376,6 +376,7 @@
  			//
  			//here
  			console.log("Vacant !");
+ 			Remove_Room(Proom_id,req,res);
 
  		} else{
  			//sorry
@@ -396,7 +397,7 @@
  * @Param: room id
  *
  */
- var Remove_Room =function(Proom_id){
+ var Remove_Room =function(Proom_id,req,res){
  	roomModel.findById(Proom_id,function(err,room){
  		if (err || !(room)) {
  			//sorry
@@ -414,6 +415,7 @@
  				return;
  			};
  			console.log("Removed the room");
+ 			res.send(req.body);
  		})
  	});
  };
@@ -872,6 +874,14 @@
  		Check_Room_Unique(req.body.Proom,req.body.Phostel,req.body.Pcapacity,req.body.Ptariff);
  		res.send(req.body);
  	};
+ });
+ app.post('/modifyroom',function(req,res){
+ 	if ((req.body.Proom_id)&&(req.body.Proom)&&(req.body.Phostel)&&(req.body.Pcapacity)&&(req.body.Ptariff)) {
+ 		Modify_Room(req.body.Proom_id, req.body.Proom, req.body.Phostel, parseInt(req.body.Pcapacity), parseInt(req.body.Ptariff));
+ 	};
+ });
+ app.post('/removeroom',function(req,res){
+ 	Check_Room_Vacant(req.body.roomID,req,res);//note that it also removes the room
  });
  app.post('/',function(req,res){
  	res.send(req.body);

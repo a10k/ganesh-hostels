@@ -42,7 +42,7 @@
  //rule.second = [0,20,30,40,50];
 
  //not working app.use(express.favicon(__dirname + '/public/images/favicon.ico')); //Jan17,2014 from stackoveflow for favicon..
- app.use(express.logger());
+ //app.use(express.logger());
  app.use(express.bodyParser());
  app.enable('trust proxy');
  app.use('/media', express.static(__dirname + '/media'));
@@ -734,7 +734,7 @@
 	var Tmonth = Today.getMonth() + 1;
 	var Tyear = Today.getFullYear();
 	minionModel.findOne({"minion_name":Hello_I_am},function (err, minio) {
- 		if (err || !(minio)) {
+		if (err || !(minio)) {
  			// sorry
  			//
  			// fail
@@ -743,34 +743,34 @@
  		};
  		//now check if minio last notify is not today and proceed...
  		if (minio.minion_last_notify.date == Tdate &&
- 		 minio.minion_last_notify.month == Tmonth &&
- 		  minio.minion_last_notify.year == Tyear) {
+ 			minio.minion_last_notify.month == Tmonth &&
+ 			minio.minion_last_notify.year == Tyear) {
  		  	// Do Nothing !
  		  	//
  		  	// Already updated notifications for today !!
 
- 		} else{
-      /** copy new logic here..done **/
-       var dateArray = getDates(new Date(minio.minion_last_notify.month+'-'+minio.minion_last_notify.date+'-'+minio.minion_last_notify.year), new Date());
-       for (dRangeI = 0; dRangeI < dateArray.length; dRangeI ++ ) {
-         Today = dateArray[dRangeI];
-	       Tdate = Today.getDate();
-	       Tmonth = Today.getMonth() + 1;
-	       Tyear = Today.getFullYear();
+ 		  } else{
+ 		  	/** copy new logic here..done **/
+ 		  	var dateArray = getDates(new Date(minio.minion_last_notify.month+'-'+minio.minion_last_notify.date+'-'+minio.minion_last_notify.year), new Date());
+ 		  	for (dRangeI = 0; dRangeI < dateArray.length; dRangeI ++ ) {
+ 		  		Today = dateArray[dRangeI];
+ 		  		Tdate = Today.getDate();
+ 		  		Tmonth = Today.getMonth() + 1;
+ 		  		Tyear = Today.getFullYear();
          //console.log(Tdate+" "+Tmonth+" "+Tyear);
          if (minio.minion_last_notify.date == Tdate &&
- 		 minio.minion_last_notify.month == Tmonth &&
- 		  minio.minion_last_notify.year == Tyear) {
+         	minio.minion_last_notify.month == Tmonth &&
+         	minio.minion_last_notify.year == Tyear) {
  		  	// Do Nothing !
  		  	//
  		  	// Already updated notifications for today !!
 
- 		} else{
-      // Notification not updated today
+ 		  } else{
+      		// Notification not updated today
  			//
  			// Update now !!
 
-			if (Tdate == 29 && Tmonth == 2){
+ 			if (Tdate == 29 && Tmonth == 2){
  				// Ignore this
  				//
  				// Date !!
@@ -783,9 +783,9 @@
  				(
  					(Tdate == 30)&&
  					((Tmonth == 1)||(Tmonth == 3)||(Tmonth == 5)||(Tmonth == 7)||(Tmonth == 8)||(Tmonth == 10)||(Tmonth == 12))
- 				)||
+ 					)||
  				(Tdate == 31)
- 			   ){
+ 				){
  				// Normal dates
  				//
  				// Update for today only !!
@@ -804,7 +804,7 @@
 
  							Create_Notification(results[i]._id);
  						};
- 				});
+ 					});
  			} else{
  				// 28 feb and months with only 30 days get here
  				//
@@ -824,7 +824,7 @@
 
  							Create_Notification(results[i]._id);
  						};
- 				});
+ 					});
  			};
  			// Update the minion record
  			//
@@ -836,12 +836,12 @@
  			var mesg = "Updated Minion on " + Tdate + " - " + Tmonth + " - " + Tyear + " !!";
  			minio.minion_action_stack.push(mesg);
  			minio.save();
-    }
-         //for ends here
-      }
- 		};
- 	});
- }
+ 		}
+
+     }
+ };
+});
+}
 
 /**
  * Fingermen Job - cron like scheduled function
@@ -886,8 +886,8 @@
  */
  var port = process.env.PORT || 5000;
  app.listen(port, function() {
- 	console.log("Listening on " + port);
-  fingerJob(); //To perform the sceduled job also at startup..!
+    console.log("Listening on " + port);
+    fingerJob(); //To perform the sceduled job also at startup..!
  });
 
 

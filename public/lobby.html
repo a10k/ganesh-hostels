@@ -1,0 +1,69 @@
+<!doctype html>
+<html ng-app>
+<head>
+<!--
+This is a HTML page for all Room Operations in Tenant watcher app by Alok Pepakayala (c)
+
+
+README:
+	The idea of the page is to display all rooms from data base in a table like form ..
+	The rooms that are vacant can be removed,and all rooms can be modified from this page..
+TODO:
+	*HEADER 
+	*Footer
+	*Room table
+	*
+
+-->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" ng-autobind></script>
+	<script src="/tenantwatcher.js"></script>
+	<link rel="icon" type="image/png" href="/images/favicon.ico">
+	<link href = "/bootstrap/css/bootstrap.css" rel="stylesheet">
+</head>
+<body align="center" ng-controller="NotificationCtrl">
+
+	<!--Insert the main image logo here -->
+	<img src="/images/logo_name.svg"/><br>
+
+
+	Search: <input class="search-query" ng-model="query">
+	Sort by:
+	<select ng-model="orderPropNotifications">
+		<option value="notes">Alphabetical</option>
+		<option value="date">Newest</option>
+	</select>
+      <div>
+
+      	<table class="table table-hover notifications">
+      		<thead>
+      			<th><b>Room</b></th>
+      			<th><b>Name</b></th>
+      			<th><b>Notes</b></th>
+      			<th><b>ID</b></th>
+      			<th><b>Date</b></th>
+      		</thead>
+
+      		<tr ng-repeat="notification in notifications | filter:query | orderBy:orderPropNotifications">
+      			<td>
+      				<span ng-bind="ShowRoomForId(notification.room_record)"></span>
+      			</td>
+      			<td>
+      				<span>{{ShowNameForId(notification.tenant_record) | uppercase }}</span>
+      			</td>
+      			<td><textarea rows="3" class="input-xxlarge" ng-model="notification.notes"></textarea></td>
+      			<td>
+      				<span>{{notification._id}}</span>
+      			</td>
+      			<td>
+      				<span>{{notification.date  | date:'medium'}}</span>
+      			</td>
+
+      			<td><button ng-click="Mad(notification)"></button></td>
+      			<td><button ng-click="makeroom()"></button></td>
+
+      		</tr>
+      	</table>
+      </div>
+
+  </body>
+  </html>

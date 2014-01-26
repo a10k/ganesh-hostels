@@ -22,7 +22,7 @@
  		$scope.tenants = {};
  		$http.get('../rooms').success(function(data) {
  			$scope.rooms = data;
- 			$http.get('../tenants').success(function(data) {
+ 			$http.get('../tenants',{cache:false}).success(function(data) {
  				$scope.tenants = data;
  				for (var i = $scope.rooms.length - 1; i >= 0; i--) {
 					//append occupants to room object here

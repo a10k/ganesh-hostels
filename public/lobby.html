@@ -6,15 +6,19 @@ This is a HTML page for all Room Operations in Tenant watcher app by Alok Pepaka
 
 
 README:
-	The idea of the page is to display all rooms from data base in a table like form ..
-	The rooms that are vacant can be removed,and all rooms can be modified from this page..
+	The idea of this page is to display all rooms from data base in a table like form,
+	The rooms that are vacant can be removed,and all rooms can be modified from this page,
+	New rooms shall also be created here and searching of rooms can be done.
 TODO:
-	*HEADER 
+	*HEADER  
 	*Footer
-	*Room table
-	*delete room
-	*modify room
-	*make room
+	*do nothing on save when no changes are done
+	*Room table /
+	*delete room /
+	*modify room /
+	*make room /
+	*refresh button /
+	*center align in fire fox /
 
 -->
 	<script src="/angular.min.js" ng-autobind></script>
@@ -22,7 +26,8 @@ TODO:
 	<link rel="icon" type="image/png" href="/images/favicon.ico">
 	<link href = "/bootstrap/css/bootstrap.css" rel="stylesheet">
 </head>
-<body align="center" ng-controller="lobbyControl">
+<body ng-controller="lobbyControl">
+<div align= "center">
 
 	<!--Insert the main image logo here -->
 	<img src="/images/logo_name.svg"/><br>
@@ -34,27 +39,68 @@ TODO:
 	<!--Entire table markup -->
 	<table style="width: 50%"  class="table table-hover " align="center">
 		<thead>
-			<th></th>
+			<th class="info">
+				<a href="" ng-click="adder= !adder" ng-hide="adder == 0"><i class="icon-plus"></i></a>
+				<a href="" ng-click="adder= !adder" ng-hide="adder == 1"><i class="icon-minus"></i></a>
+			</th>
 			<th><a href="" ng-click="orderPropNotifications = 'room'; reverse=!reverse">Room</a></th>
 			<th><a href="" ng-click="orderPropNotifications = 'hostel'; reverse=!reverse">Hostel</a></th>
 			<th><a href="" ng-click="orderPropNotifications = 'occupants'; reverse=!reverse">Occupants</a></th>
 			<th><a href="" ng-click="orderPropNotifications = 'capacity'; reverse=!reverse">Capacity</a></th>
 			<th><a href="" ng-click="orderPropNotifications = 'tariff'; reverse=!reverse">Tariff</a></th>
+			<th><a href="" ng-click="refreshView()"><i class="icon-refresh"></i></a></th>
 		</thead>
 
-		<tr ng-repeat="room in rooms | filter:query | orderBy:orderPropNotifications:reverse" class="{{getRoomStatus(room.occupants ,room.capacity,checked) }}" >
+		<!--Adding a room row -->
+		<tr ng-hide="adder == 1" class="info">
+			<td><a href=""><i ng-click="makeRoom(newRoomRoom,newRoomHostel,newRoomCapacity,newRoomTariff)" class="icon-ok"></i></a></td>
+			<td><input type="text"  class="input-small"   ng-model="newRoomRoom" value=""></td>
+			<td><input type="text"  class="input-small"   ng-model="newRoomHostel" value=""></td>
+			<td></td>
+			<td><input type="text"  class="input-mini"   ng-model="newRoomCapacity" value=""></td>
+			<td><input type="text"  class="input-mini"   ng-model="newRoomTariff" value=""></td>
+			<td></td>	
+		</tr>
+
+		<tr ng-repeat="room in rooms | filter:query | orderBy:orderPropNotifications:reverse" class="{{getRoomStatus(room.occupants ,room.capacity,checked) }}" height="50px">
+			<!--Edit room  -->
 			<td>
 				<a href="" ng-click="checked= !checked" ng-hide="checked == 1"><i ng-click="saveRoom(room._id,room.room,room.hostel,room.capacity,room.tariff)" class="icon-ok"></i></a>
 				<a href="" ng-click="checked= !checked" ng-hide="checked == 0"><i class="icon-pencil"></i></a>
 			</td>
-			<td><input type="text"  class="input-small" ng-readonly="checked"  ng-model="room.room" value="{{room.room}}"></td>
-			<td><input type="text"  class="input-small" ng-readonly="checked"  ng-model="room.hostel" value="{{room.hostel}}"></td>
+
+
+			<!--Room td control -->
+			<td ng-hide="checked"><input type="text"  class="input-small"   ng-model="room.room" value="{{room.room}}"></td>
+			<td ng-hide="!checked"><span>{{room.room}}</span></td>
+
+
+			<!--Hostel td control-->
+			<td ng-hide="checked"><input type="text"  class="input-small" ng-model="room.hostel" value="{{room.hostel}}"></td>
+			<td ng-hide="!checked"><span>{{room.hostel}}</span></td>
+
+
+			<!--Occupants cant be changed from here -->
 			<td><span ng-bind="room.occupants"></span></td>
-			<td><input type="text"  class="input-mini" ng-readonly="checked"  ng-model="room.capacity" value="{{room.capacity}}"></td>
-			<td><input type="text"  class="input-mini" ng-readonly="checked"  ng-model="room.tariff" value="{{room.tariff}}"></span></td>
+
+
+			<!--Capacity of the room -->
+			<td ng-hide="checked"><input type="text"  class="input-mini" ng-model="room.capacity" value="{{room.capacity}}"></td>
+			<td ng-hide="!checked"><span>{{room.capacity}}</span></td>
+
+
+			<!--Tariff for room -->
+			<td ng-hide="checked"><input type="text"  class="input-mini" ng-model="room.tariff" value="{{room.tariff}}"></span></td>
+			<td ng-hide="!checked"><span>{{room.tariff}}</span></td>
+
+			<!--Remove room  -->
 			<td><a href="" ng-hide="room.occupants != 0 " ng-click="removeRoom(room._id)"><i ng-hide="checked == 0"class="icon-remove-circle"></a></td>
 		</tr>
 	</table>
 
+
+<div class="footer">&copy; Alok Pepakayala</div>
+
+</div>
 </body>
 </html>

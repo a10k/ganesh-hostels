@@ -21,6 +21,16 @@
  *
  */
 
+/*!
+ *
+ * TODO: 
+ *	Logging for all actions to minio
+ *	Facebook login and user specific databases
+ *
+ *
+ *
+ *
+ */
  var Hello_I_am ="Pingu";
 
  var express = require("express");
@@ -293,7 +303,7 @@
  *
  *
  */
- var Create_Room = function(Proom,Phostel,Pcapacity,Ptariff){
+ var Create_Room = function(Proom,Phostel,Pcapacity,Ptariff,req,res){
  	if((typeof(Proom)=="string") && (typeof(Phostel)=="string") && (typeof(Pcapacity)=="number") && (typeof(Ptariff)=="number")){
  		var test_room = new roomModel();
  		test_room.room = Proom;
@@ -309,6 +319,7 @@
  				return;
  			};
  			console.log("Saved Room %s in %s",Proom,Phostel);
+ 			res.send(req.body);
  			//done
  			//
  			//here
@@ -327,7 +338,7 @@
  * @Param: hostel
  *
  */
- var Check_Room_Unique =function(Proom,Phostel,Pcapacity,Ptariff){
+ var Check_Room_Unique =function(Proom,Phostel,Pcapacity,Ptariff,req,res){
  	roomModel.find({room:Proom,hostel:Phostel},function(err,finding){
  		if (err) {
  			//sorry
@@ -341,13 +352,14 @@
  			//fail
 
  			//console.log("Already declared !");
+ 			res.send(req.body);
  			return ;
  		} else {
  			//done
  			//
  			//here
 
- 			Create_Room(Proom,Phostel,Pcapacity,Ptariff);
+ 			Create_Room(Proom,Phostel,Pcapacity,Ptariff,req,res);
  			//console.log("The given room/hostel is unique !");
  		};
  	})
@@ -424,7 +436,7 @@
 
 
 /*
- * Modify a room ,DONE : must chk uniqueness here again
+ * Modify a room ,DONE : must chk uniqueness here again DONE: allow update when id is same..
  *
  *
  */
@@ -441,15 +453,35 @@
  			//sorry
  			//
  			//fail
- 			
+
  			res.send(req.body);
  			return ;
  		} else if (finding.length > 0) {
  			//sorry
  			//
  			//fail
-
  			console.log("Already declared !");
+ 			for (var i = finding.length - 1; i >= 0; i--) {
+ 				if((finding[i]._id == Proom_id ) && ( (finding[i].room == Proom)||(finding[i].hostel == Phostel))){
+ 					console.log("Found one perfect match though !");
+ 					roomModel.findByIdAndUpdate(Proom_id,modifed,null,function(err){
+ 						if(err){
+							//sorry
+							//
+							//fail
+
+							console.log("No such room.");
+							return;
+						};
+						//done
+						//
+						//here
+						console.log('Room Modified');
+						//res.send(req.body); givving error when present
+						//return;
+					});
+ 				}
+ 			};
  			res.send(req.body);
  			return ;
  		} else {
@@ -468,12 +500,12 @@
 				console.log("No such room.");
 				return;
 			};
-			console.log('Room Modified');
-			res.send(req.body);
 			//done
 			//
 			//here
 
+			console.log('Room Modified');
+			res.send(req.body);
 		});
  		};
  	})
@@ -873,6 +905,17 @@
 }
 
 /**
+ * logger  method  - for adding all logs to the minio.. TODO: needs to be tested..
+ *
+ */
+var minioLogger = function(mesg){
+	minionModel.findOne({"minion_name":Hello_I_am},function (err, minio) {
+		minio.minion_action_stack.push(mesg);
+ 		minio.save();
+	});
+}
+
+/**
  * Fingermen Job - cron like scheduled function
  *
  */
@@ -898,8 +941,7 @@
  });
  app.post('/makeroom',function(req,res){
  	if ((req.body.Proom)&&(req.body.Phostel)&&(req.body.Pcapacity)&&(req.body.Ptariff)) {
- 		Check_Room_Unique(req.body.Proom,req.body.Phostel,req.body.Pcapacity,req.body.Ptariff);
- 		res.send(req.body);
+ 		Check_Room_Unique(req.body.Proom,req.body.Phostel,req.body.Pcapacity,req.body.Ptariff,req,res);
  	};
  });
  app.post('/modifyroom',function(req,res){

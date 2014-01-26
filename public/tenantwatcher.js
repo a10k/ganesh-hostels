@@ -47,9 +47,9 @@
 		if (occupants ==0) {
 			return "error";
 		};
-		if (capacity - occupants == 0) {
+		if ( (capacity - occupants) == 0) {
 			return "success";
-		}else{
+		} else {
 			return "warning";
 		}
 	}
@@ -82,20 +82,29 @@
 		});
 	}
 
-	$scope.makeroom = function(){
-		var d = {
-			"Proom":"NEW",
-			"Phostel":"NEW",
-			"Pcapacity":2,
-			"Ptariff":5000
+	$scope.makeRoom = function(room,hostel,cap,tar){
+		cap = parseInt(cap);
+		tar = parseInt(tar);
+
+		var temp = {
+			"Proom":room,
+			"Phostel":hostel,
+			"Pcapacity":cap,
+			"Ptariff":tar
 		};
-		$http.post('../makeroom',d).success(function(data) {
-			console.log(data);
+		$http.post('../makeroom',temp).success(function(data) {
+			$scope.newRoomRoom = "";
+			$scope.newRoomHostel = "";
+			$scope.newRoomCapacity = "";
+			$scope.newRoomTariff = "";
+
+			$scope.adder = 1;
 			$scope.refreshView();
 		});
 	}
-	//$scope.makeroom();
 
+
+	$scope.adder = 1;
 	$scope.checked = 1;
  	$scope.refreshView();
 }

@@ -84,17 +84,17 @@
 
 	$scope.makeroom = function(){
 		var d = {
-			"Proom":"G1",
-			"Phostel":"Reddy Apt",
-			"Pcapacity":3,
-			"Ptariff":5500
+			"Proom":"NEW",
+			"Phostel":"NEW",
+			"Pcapacity":2,
+			"Ptariff":5000
 		};
 		$http.post('../makeroom',d).success(function(data) {
 			console.log(data);
 			$scope.refreshView();
 		});
 	}
-	$scope.makeroom();
+	//$scope.makeroom();
 
 	$scope.checked = 1;
  	$scope.refreshView();

@@ -424,11 +424,11 @@
 
 
 /*
- * Modify a room
+ * Modify a room ,DONE : must chk uniqueness here again
  *
  *
  */
- var Modify_Room = function(Proom_id,Proom,Phostel,Pcapacity,Ptariff){
+ var Modify_Room = function(Proom_id,Proom,Phostel,Pcapacity,Ptariff,req,res){
  	if((Proom_id) && (typeof(Proom)=="string") && (typeof(Phostel)=="string") && (typeof(Pcapacity)=="number") && (typeof(Ptariff)=="number")){
  		var modifed = {
  			room: Proom,
@@ -436,7 +436,30 @@
  			capacity: Pcapacity,
  			tariff: Ptariff,
  		};
- 		roomModel.findByIdAndUpdate(Proom_id,modifed,null,function(err){
+ 		roomModel.find({room:Proom,hostel:Phostel},function(err,finding){
+ 		if (err) {
+ 			//sorry
+ 			//
+ 			//fail
+ 			
+ 			res.send(req.body);
+ 			return ;
+ 		} else if (finding.length > 0) {
+ 			//sorry
+ 			//
+ 			//fail
+
+ 			console.log("Already declared !");
+ 			res.send(req.body);
+ 			return ;
+ 		} else {
+ 			//done
+ 			//
+ 			//here
+
+ 			
+ 			console.log("The given room/hostel is unique !");
+ 			roomModel.findByIdAndUpdate(Proom_id,modifed,null,function(err){
  			if(err){
 				//sorry
 				//
@@ -446,11 +469,15 @@
 				return;
 			};
 			console.log('Room Modified');
+			res.send(req.body);
 			//done
 			//
 			//here
 
 		});
+ 		};
+ 	})
+ 		
  	};
  };
  //Modify_Room("51eaa6f48facad5a04000001","T2","reddy apt",1,2700);
@@ -877,7 +904,7 @@
  });
  app.post('/modifyroom',function(req,res){
  	if ((req.body.Proom_id)&&(req.body.Proom)&&(req.body.Phostel)&&(req.body.Pcapacity)&&(req.body.Ptariff)) {
- 		Modify_Room(req.body.Proom_id, req.body.Proom, req.body.Phostel, parseInt(req.body.Pcapacity), parseInt(req.body.Ptariff));
+ 		Modify_Room(req.body.Proom_id, req.body.Proom, req.body.Phostel, parseInt(req.body.Pcapacity), parseInt(req.body.Ptariff),req,res);
  	};
  });
  app.post('/removeroom',function(req,res){

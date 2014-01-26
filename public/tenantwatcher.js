@@ -16,6 +16,10 @@
  function lobbyControl($scope, $http) {
 
  	$scope.refreshView = function(){
+ 		$scope.adder = 1;
+		$scope.checked = 1;
+ 		$scope.rooms ={};
+ 		$scope.tenants = {};
  		$http.get('../rooms').success(function(data) {
  			$scope.rooms = data;
  			$http.get('../tenants').success(function(data) {
@@ -98,13 +102,11 @@
 			$scope.newRoomCapacity = "";
 			$scope.newRoomTariff = "";
 
-			$scope.adder = 1;
 			$scope.refreshView();
 		});
 	}
 
 
-	$scope.adder = 1;
-	$scope.checked = 1;
+
  	$scope.refreshView();
 }

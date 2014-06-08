@@ -1,0 +1,33 @@
+<!doctype html>
+<html ng-app="tenantWatcher">
+<head>
+	<script src="/angular.min.js"></script>
+	<script src="/tenantwatcher.js"></script>
+	<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script>
+
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+	<div ng-controller="pickAdate">
+		<pre>Selected date is: <em>{{dt | date:'fullDate' }}</em></pre>
+		<div class="row">
+			<div class="col-md-6">
+				<p class="input-group">
+					<input type="text" class="form-control" show-button-bar="false" show-weeks ="false" datepicker-popup="dd-MMMM-yyyy" ng-model="dt" is-open="opened"  ng-required="true" />
+					<span class="input-group-btn">
+						<button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+					</span>
+				</p>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+</body>
+</html>

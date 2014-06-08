@@ -7,20 +7,21 @@
  	*/
 
 'use strict';
+angular.module('tenantWatcher', ['ui.bootstrap']);
+angular.module("lobby", []);
 /* Controllers */
 
 /*
  * Room lobby page ng controller
  *
  */
- function lobbyControl($scope, $http) {
-
+function lobbyControl($scope, $http) {
  	$scope.refreshView = function(){
  		$scope.adder = 1;
 		$scope.checked = 1;
  		$scope.rooms ={};
  		$scope.tenants = {};
- 		$http.get('../rooms').success(function(data) {
+ 		$http.get('../rooms',{cache:false}).success(function(data) {
  			$scope.rooms = data;
  			$http.get('../tenants',{cache:false}).success(function(data) {
  				$scope.tenants = data;
@@ -46,10 +47,10 @@
 
 	$scope.getRoomStatus = function(occupants,capacity,checked){
 		if (checked == 0) {
-			return "info";
+			return "active";
 		};
 		if (occupants ==0) {
-			return "error";
+			return "danger";
 		};
 		if ( (capacity - occupants) == 0) {
 			return "success";
@@ -110,3 +111,23 @@
 
  	$scope.refreshView();
 }
+
+
+/*
+ * Date picker controll ,very minimalistic
+ *
+ */
+function  pickAdate($scope) {
+	$scope.today = function() {
+		$scope.dt = new Date();
+	};
+	$scope.today();
+
+	$scope.open = function($event) {
+		$event.preventDefault();
+		$event.stopPropagation();
+		$scope.opened = true;
+	};
+
+};
+

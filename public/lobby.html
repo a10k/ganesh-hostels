@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app>
+<html ng-app="lobby">
 <head>
 <!--
 This is a HTML page for all Room Operations in Tenant watcher app by Alok Pepakayala (c)
@@ -21,87 +21,165 @@ TODO:
 	*refresh button /
 	*center align in fire fox /
 
--->
-	<script src="/angular.min.js" ng-autobind></script>
+        -->    
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+	<script type="text/javascript" src="/plax.js"></script>
+	<script src="/angular.min.js" ></script>
 	<script src="/tenantwatcher.js"></script>
 	<link rel="icon" type="image/png" href="/images/favicon.ico">
-	<link href = "/bootstrap/css/bootstrap.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body ng-controller="lobbyControl">
-<div align= "center">
+
+
+<body ng-controller="lobbyControl" style="background:black">
+<div align= "center" style="margin:40px">
 
 	<!--Insert the main image logo here -->
-	<img src="/images/logo_name.svg"/><br>
-
+	<img style="margin:0px" class="near" src="/images/tw_main.jpg" width="620px"/>
+	<br>
+	<a href="lobby.html"><img style="margin:0px" class="far"  src="/images/tw_rooms.jpg"/></a>
+	<a href="start.html"><img style="margin:0px" class="veryfar" src="/images/tw_notif.jpg"/></a>
+	<a href="people.html"><img style="margin:0px" class="far" src="/images/tw_tenants.jpg"/></a>
+	<br>
+	<br>
+	
 	<!--Search the table with a cool search bar-->
-	<input class="search-query" ng-model="query"><i class="icon-search"></i>
+	<input class="input-lg near" 
+           		ng-model="query">
+	<br>
+    	<i class="glyphicon glyphicon-search "></i>
+	<br>
 
 
 	<!--Entire table markup -->
-	<table style="width: 50%"  class="table table-hover " align="center">
+	<table style="width: 70%"  
+        		class="table table-hover far " 
+           		align="center">
 		<thead>
 			<th class="info">
-				<a href="" ng-click="adder= !adder" ng-hide="adder == 0"><i class="icon-plus"></i></a>
-				<a href="" ng-click="adder= !adder" ng-hide="adder == 1"><i class="icon-minus"></i></a>
+				<a href="" 
+                   ng-click="adder= !adder" 
+                   ng-hide="adder == 0">
+                <i class="glyphicon glyphicon-plus"></i></a>
+				<a href="" 
+                   ng-click="adder= !adder" 
+                   ng-hide="adder == 1">
+                <i class="glyphicon glyphicon-minus"></i></a>
 			</th>
-			<th><a href="" ng-click="orderPropNotifications = 'room'; reverse=!reverse">Room</a></th>
-			<th><a href="" ng-click="orderPropNotifications = 'hostel'; reverse=!reverse">Hostel</a></th>
-			<th><a href="" ng-click="orderPropNotifications = 'occupants'; reverse=!reverse">Occupants</a></th>
-			<th><a href="" ng-click="orderPropNotifications = 'capacity'; reverse=!reverse">Capacity</a></th>
-			<th><a href="" ng-click="orderPropNotifications = 'tariff'; reverse=!reverse">Tariff</a></th>
-			<th><a href="" ng-click="refreshView()"><i class="icon-refresh"></i></a></th>
+			<th><a href="" 
+                   ng-click="orderPropNotifications = 'room'; reverse=!reverse">Room</a></th>
+			<th><a href="" 
+                   ng-click="orderPropNotifications = 'hostel'; reverse=!reverse">Hostel</a></th>
+			<th><a href="" 
+                   ng-click="orderPropNotifications = 'occupants'; reverse=!reverse">Occupants</a></th>
+			<th><a href="" 
+                   ng-click="orderPropNotifications = 'capacity'; reverse=!reverse">Capacity</a></th>
+			<th><a href="" 
+                   ng-click="orderPropNotifications = 'tariff'; reverse=!reverse">Tariff</a></th>
+			<th><a href="" 
+                   ng-click="refreshView()">
+                <i class="glyphicon glyphicon-refresh"></i></a></th>
 		</thead>
 
 		<!--Adding a room row -->
-		<tr ng-hide="adder == 1" class="info">
-			<td><a href=""><i ng-click="makeRoom(newRoomRoom,newRoomHostel,newRoomCapacity,newRoomTariff)" class="icon-ok"></i></a></td>
-			<td><input type="text"  class="input-small"   ng-model="newRoomRoom" value=""></td>
-			<td><input type="text"  class="input-small"   ng-model="newRoomHostel" value=""></td>
+		<tr ng-hide="adder == 1" 
+            class="info">
+			<td><a href=""><i ng-click="makeRoom(newRoomRoom,newRoomHostel,newRoomCapacity,newRoomTariff)" 
+                              class="glyphicon glyphicon-floppy-disk"></i></a></td>
+			<td><input type="text"  
+                       class="input-sm"   
+                       ng-model="newRoomRoom" 
+                       value=""></td>
+			<td><input type="text"  
+                       class="input-sm"   
+                       ng-model="newRoomHostel" 
+                       value=""></td>
 			<td></td>
-			<td><input type="text"  class="input-mini"   ng-model="newRoomCapacity" value=""></td>
-			<td><input type="text"  class="input-mini"   ng-model="newRoomTariff" value=""></td>
+			<td><input type="text"  
+                       class="input-sm"   
+                       ng-model="newRoomCapacity" 
+                       value=""></td>
+			<td><input type="text"  
+                       class="input-sm"   
+                       ng-model="newRoomTariff" 
+                       value=""></td>
 			<td></td>	
 		</tr>
 
-		<tr ng-repeat="room in rooms | filter:query | orderBy:orderPropNotifications:reverse" class="{{getRoomStatus(room.occupants ,room.capacity,checked) }}" height="50px">
+		<tr ng-repeat="room in rooms | filter:query | orderBy:orderPropNotifications:reverse" 
+            class="{{getRoomStatus(room.occupants ,room.capacity,checked) }}" 
+            height="50px">
 			<!--Edit room  -->
 			<td>
-				<a href="" ng-click="checked= !checked" ng-hide="checked == 1"><i ng-click="saveRoom(room._id,room.room,room.hostel,room.capacity,room.tariff)" class="icon-ok"></i></a>
-				<a href="" ng-click="checked= !checked" ng-hide="checked == 0"><i class="icon-pencil"></i></a>
+				<a href="" 
+                   ng-click="checked= !checked" 
+                   ng-hide="checked == 1">
+                <i ng-click="saveRoom(room._id,room.room,room.hostel,room.capacity,room.tariff)" 
+                   class="glyphicon glyphicon-floppy-disk"></i></a>
+				<a href="" 
+                   ng-click="checked= !checked" 
+                   ng-hide="checked == 0">
+                <i class="glyphicon glyphicon-pencil"></i></a>
 			</td>
 
 
 			<!--Room td control -->
-			<td ng-hide="checked"><input type="text"  class="input-small"   ng-model="room.room" value="{{room.room}}"></td>
+			<td ng-hide="checked"><input type="text"  
+                                         class="input-sm"   
+                                         ng-model="room.room" 
+                                         value="{{room.room}}"></td>
 			<td ng-hide="!checked"><span>{{room.room}}</span></td>
 
 
 			<!--Hostel td control-->
-			<td ng-hide="checked"><input type="text"  class="input-small" ng-model="room.hostel" value="{{room.hostel}}"></td>
+			<td ng-hide="checked"><input type="text"  
+                                         class="input-sm" 
+                                         ng-model="room.hostel" 
+                                         value="{{room.hostel}}"></td>
 			<td ng-hide="!checked"><span>{{room.hostel}}</span></td>
 
 
-			<!--Occupants cant be changed from here -->
+			<!--Occupants; cant be changed from here -->
 			<td><span ng-bind="room.occupants"></span></td>
 
 
 			<!--Capacity of the room -->
-			<td ng-hide="checked"><input type="text"  class="input-mini" ng-model="room.capacity" value="{{room.capacity}}"></td>
+			<td ng-hide="checked"><input type="text"  
+                                         class="input-sm" 
+                                         ng-model="room.capacity" 
+                                         value="{{room.capacity}}"></td>
 			<td ng-hide="!checked"><span>{{room.capacity}}</span></td>
 
 
 			<!--Tariff for room -->
-			<td ng-hide="checked"><input type="text"  class="input-mini" ng-model="room.tariff" value="{{room.tariff}}"></span></td>
+			<td ng-hide="checked"><input type="text"  
+                                         class="input-sm" 
+                                         ng-model="room.tariff" 
+                                         value="{{room.tariff}}"></span></td>
 			<td ng-hide="!checked"><span>{{room.tariff}}</span></td>
 
 			<!--Remove room  -->
-			<td><a href="" ng-hide="room.occupants != 0 " ng-click="removeRoom(room._id)"><i ng-hide="checked == 0"class="icon-remove-circle"></a></td>
+			<td><a href="" 
+                   ng-hide="room.occupants != 0 " 
+                   ng-click="removeRoom(room._id)"><i ng-hide="checked == 0" 
+                                                      class="glyphicon glyphicon-remove-circle"></a></td>
 		</tr>
 	</table>
-
-
-<div class="footer">&copy; Alok Pepakayala</div>
+<br>
+<br>
+<br>
+<img class="veryfar" src="/images/logo_name.svg" width="300px"/>
+<br>
+<div class="footer veryfar">&copy; Alok Pepakayala</div>
 
 </div>
+<script type="text/javascript">
+        $(document).ready(function () {
+          $('.near').plaxify({"xRange":10,"yRange":5,"invert":true})
+          $('.veryfar').plaxify({"xRange":20,"yRange":30,"invert":true})
+          $('.far').plaxify({"xRange":30,"yRange":15,})
+          $.plax.enable()
+         })
+</script>
 </body>
 </html>

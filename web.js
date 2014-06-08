@@ -3,83 +3,36 @@
  *
  *
  * written by alok pepakayala (c)
+ * 
+ * Copyright(c) 2013-2014 
  * unconfidential@ovi.com
- *
- *
- *
- * a10k - runtime
- * Database schemas and methods.
- *
  */
 
-/*!
- *
- * Copyright(c) 2013 alok pepakayala <unconfidential@ovi.com>
- *
- *
- *
- *
- */
 
-/*!
- *
- * TODO: 
- *	Logging for all actions to minio
- *	Facebook login and user specific databases
- *
- *
- *
- *
- */
- var Hello_I_am ="Pingu";
+var Hello_I_am = "Pingu";
 
- var express = require("express");
- var app = express();
- var mongoo = require('mongoose');
- var Schema = mongoo.Schema;
- var schedule = require('node-schedule'); // for cron like scheduling
- var rule = new schedule.RecurrenceRule(); //rule for cron like scheduling
+var express = require("express");
+var app = express();
+var mongoo = require('mongoose');
+var Schema = mongoo.Schema;
+var schedule = require('node-schedule'); // for cron like scheduling
+var rule = new schedule.RecurrenceRule(); //rule for cron like scheduling
 
+rule.hour = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23]; //cron times
+rule.minute = 0; //cron times
 
- rule.hour = [1,3,5,7,9,11,13,15,17,19,21,23]; //cron times
- rule.minute = 0; //cron times
-
- //debug mode rule..
- //rule.hour = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
- //rule.minute = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59];
-
- //debug mode rule..
- //rule.second = [0,20,30,40,50];
-
- //not working app.use(express.favicon(__dirname + '/public/images/favicon.ico')); //Jan17,2014 from stackoveflow for favicon..
- //app.use(express.logger());
- app.use(express.bodyParser());
- app.enable('trust proxy');
- app.use('/media', express.static(__dirname + '/media'));
- app.use(express.static(__dirname + '/public'));
+app.use(express.bodyParser());
+app.enable('trust proxy');
+app.use('/media', express.static(__dirname + '/media'));
+app.use(express.static(__dirname + '/public'));
 
 
 
 
-
-
-
-
-
-/*
- * Schema for storing tenant records
- *
- */
+//Schema for storing tenant records
  var tenantSchema = new Schema({
- 	name_initial:{
- 		name:String,
- 		intial: String,
- 	},
- 	date_month_year:{
- 		date: Number,
- 		month: Number,
- 		year: Number,
- 	},
+ 	name_initial:{name:String,intial: String,},
+ 	date_month_year:{date: Number,month: Number,year: Number,},
  	pending_pays: Number,
  	room_record: Schema.Types.ObjectId,
  	contact: Number,
@@ -88,10 +41,7 @@
 
 
 
-/*
- * Schema for storing room records
- *
- */
+//Schema for storing room records
  var roomSchema = new Schema({
  	room: String,
  	hostel: String,
@@ -101,29 +51,18 @@
 
 
 
-/*
- * Schema for storing notification records
- *
- */
+//Schema for storing notification records
  var notificationSchema = new Schema({
  	tenant_record: Schema.Types.ObjectId,
  	room_record: Schema.Types.ObjectId,
  	notes: String,
- 	date:{ type: Date, default: Date.now },
+ 	dm:String,
+ 	dy:String,
  });
 
-
-
-/*
- * Schema for storing minion records
- *
- */
+//Schema for storing minion records
  var minionSchema = new Schema({
- 	minion_last_notify:{
- 		date: Number,
- 		month: Number,
- 		year: Number,
- 	},
+ 	minion_last_notify:{date: Number,month: Number,year: Number,},
  	minion_action_stack: [String],
  	minion_display_stack: [String],
  	minion_memo: String,
@@ -132,10 +71,7 @@
 
 
 
-/*
- * Connection and compilation
- *
- */
+//Connection and compilation
  mongoo.connect('mongodb://a10k:D0r1an_Gray@dharma.mongohq.com:10086/tenantwatcher');
  var tenantModel = mongoo.model('tenantModel',tenantSchema);
  var roomModel = mongoo.model('roomModel',roomSchema);
@@ -151,10 +87,7 @@
 
 
 
-/*
- * Creating a tenant
- *
- */
+//Creating a tenant
  var Create_Tenant = function(Pname,Pin,Pdate,Pmn,Pyr,Ppp,Proom_id,Pcontact,Px){
  	if ((typeof(Pname)=="string") && (typeof(Pin)=="string") && (typeof(Pdate)=="number") && (typeof(Pmn)=="number") && (typeof(Pyr)=="number") && (typeof(Ppp)=="number") && (typeof(Pcontact)=="number") && (typeof(Px)=="number")) {
  		var test_tenant =new tenantModel();
@@ -168,18 +101,8 @@
  		test_tenant.contact = Pcontact;
  		test_tenant.extras = Px;
  		test_tenant.save(function(err){
- 			if(err){
- 				//sorry
- 				//
- 				//fail
-
- 				return;
- 			};
+ 			if(err){return;};
  			console.log("Saved Tenant: %s \n",Pname);
- 			//done
- 			//
- 			//here
-
  		});
  	};
  };
@@ -187,10 +110,7 @@
 
 
 
- /*
- * Modify a tenant
- *
- */
+//Modify a tenant
  var Modify_Tenant = function(Pgiven_id,Pname,Pin,Pdate,Pmn,Pyr,Ppp,Proom_id,Pcontact,Px){
  	if ((Pgiven_id) && (typeof(Pname)=="string") && (typeof(Pin)=="string") && (typeof(Pdate)=="number") && (typeof(Pmn)=="number") && (typeof(Pyr)=="number") && (typeof(Ppp)=="number") && (typeof(Pcontact)=="number") && (typeof(Px)=="number")) {
  		var modifed = {
@@ -209,18 +129,8 @@
  			extras: Px,
  		};
  		tenantModel.findByIdAndUpdate(Pgiven_id,modifed,null,function(err){
- 			if(err){
-				//sorry
-				//
-				//fail
-
-				return;
-			};
+ 			if(err){return;};
 			console.log('Tenant Modified');
-			//done
-			//
-			//here
-
 		});
  	};
  };
@@ -228,19 +138,10 @@
 
 
 
-/*
- * Showing all tenants
- *
- */
+//Showing all tenants
  var Show_All_Tenants = function(zres){
  	tenantModel.find({}, function (err, results) {
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		};
+ 		if (err) {return;};
  		zres.send(results);
  	});
  };
@@ -248,48 +149,18 @@
 
 
 
-/*
- * Remove a tenant,make sure no notifications for given tenant id. (will cause serious errors otherwise)
- * Workaround is dont remove if pending pay is > 0
- *
- * @Param: tenant id
- *
- */
+//Remove a tenant,make sure no notifications for given tenant id. (will cause serious errors otherwise).Workaround is dont remove if pending pay is > 0
  var Remove_Tenant = function(Pgiven_id){
  	tenantModel.findById(Pgiven_id, function (err, tenant) {
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		};
+ 		if (err) {return;};
  		if (tenant && tenant.pending_pays > 0) {
  			console.log("Not removing the tenant");
- 			//pending notifications
- 			//
- 			//fail
-
  		} else if(tenant && tenant.pending_pays === 0){
  			tenant.remove(function(err){
- 				if (err) {
- 					//sorry
- 					//
- 					//fail
-
- 					return;
- 				};
+ 				if (err) {return;};
  				console.log("Removed tenant");
- 				//done
- 				//
- 				//here
-
  			});
  		} else {
- 			//sorry
- 			//
- 			//fail
-
  			console.log("No such tenant found");
  		};
  	});
@@ -298,11 +169,7 @@
 
 
 
-/*
- * Creating a room,make sure room is unique
- *
- *
- */
+//Creating a room,make sure room is unique
  var Create_Room = function(Proom,Phostel,Pcapacity,Ptariff,req,res){
  	if((typeof(Proom)=="string") && (typeof(Phostel)=="string") && (typeof(Pcapacity)=="number") && (typeof(Ptariff)=="number")){
  		var test_room = new roomModel();
@@ -311,19 +178,9 @@
  		test_room.capacity = Pcapacity;
  		test_room.tariff = Ptariff;
  		test_room.save(function(err){
- 			if (err) {
- 				//sorry
- 				//
- 				//fail
-
- 				return;
- 			};
+ 			if (err) {return;};
  			console.log("Saved Room %s in %s",Proom,Phostel);
  			res.send(req.body);
- 			//done
- 			//
- 			//here
-
  		});
  	};
  };
@@ -331,34 +188,14 @@
 
 
 
-/*
- * Check if given room is unique and make room
- *
- * @Param: room
- * @Param: hostel
- *
- */
+//Check if given room is unique and make room
  var Check_Room_Unique =function(Proom,Phostel,Pcapacity,Ptariff,req,res){
  	roomModel.find({room:Proom,hostel:Phostel},function(err,finding){
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return ;
- 		} else if (finding.length > 0) {
- 			//sorry
- 			//
- 			//fail
-
+ 		if (err) {return ;} else if (finding.length > 0) {
  			//console.log("Already declared !");
  			res.send(req.body);
  			return ;
  		} else {
- 			//done
- 			//
- 			//here
-
  			Create_Room(Proom,Phostel,Pcapacity,Ptariff,req,res);
  			//console.log("The given room/hostel is unique !");
  		};
@@ -368,33 +205,14 @@
 
 
 
- /*
- * Check if given room is vacant and remove it !
- *
- * @Param: room id
- *
- */
+//Check if given room is vacant and remove it !
  var Check_Room_Vacant =function(Proom_id,req,res){
  	tenantModel.find({room_record:Proom_id},function(err,finding){
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		};
+ 		if (err) {return;};
  		if (finding && finding.length == 0) {
- 			//done
- 			//
- 			//here
  			console.log("Vacant !");
  			Remove_Room(Proom_id,req,res);
-
  		} else{
- 			//sorry
- 			//
- 			//fail
-
  			console.log("Occupied ");
  		};
  	});
@@ -403,29 +221,12 @@
 
 
 
-/*
- * Remove a room,make sure room is vacant before doing this.
- *
- * @Param: room id
- *
- */
+//Remove a room,make sure room is vacant before doing this.
  var Remove_Room =function(Proom_id,req,res){
  	roomModel.findById(Proom_id,function(err,room){
- 		if (err || !(room)) {
- 			//sorry
- 			//
- 			//fail
- 			console.log("No Such room.");
- 			return;
- 		};
+ 		if (err || !(room)) {console.log("No Such room.");return;};
  		room.remove(function(err){
- 			if (err) {
- 				//sorry
- 				//
- 				//fail
-
- 				return;
- 			};
+ 			if (err) {return;};
  			console.log("Removed the room");
  			res.send(req.body);
  		})
@@ -435,11 +236,7 @@
 
 
 
-/*
- * Modify a room ,DONE : must chk uniqueness here again DONE: allow update when id is same..
- *
- *
- */
+//Modify a room ,DONE : must chk uniqueness here again DONE: allow update when id is same..
  var Modify_Room = function(Proom_id,Proom,Phostel,Pcapacity,Ptariff,req,res){
  	if((Proom_id) && (typeof(Proom)=="string") && (typeof(Phostel)=="string") && (typeof(Pcapacity)=="number") && (typeof(Ptariff)=="number")){
  		var modifed = {
@@ -450,60 +247,25 @@
  		};
  		roomModel.find({room:Proom,hostel:Phostel},function(err,finding){
  		if (err) {
- 			//sorry
- 			//
- 			//fail
-
  			res.send(req.body);
  			return ;
  		} else if (finding.length > 0) {
- 			//sorry
- 			//
- 			//fail
  			console.log("Already declared !");
  			for (var i = finding.length - 1; i >= 0; i--) {
  				if((finding[i]._id == Proom_id ) && ( (finding[i].room == Proom)||(finding[i].hostel == Phostel))){
  					console.log("Found one perfect match though !");
  					roomModel.findByIdAndUpdate(Proom_id,modifed,null,function(err){
- 						if(err){
-							//sorry
-							//
-							//fail
-
-							console.log("No such room.");
-							return;
-						};
-						//done
-						//
-						//here
+ 						if(err){console.log("No such room.");return;};
 						console.log('Room Modified');
-						//res.send(req.body); givving error when present
-						//return;
 					});
  				}
  			};
  			res.send(req.body);
  			return ;
  		} else {
- 			//done
- 			//
- 			//here
-
- 			
  			console.log("The given room/hostel is unique !");
  			roomModel.findByIdAndUpdate(Proom_id,modifed,null,function(err){
- 			if(err){
-				//sorry
-				//
-				//fail
-
-				console.log("No such room.");
-				return;
-			};
-			//done
-			//
-			//here
-
+ 			if(err){console.log("No such room.");return;};
 			console.log('Room Modified');
 			res.send(req.body);
 		});
@@ -515,11 +277,7 @@
  //Modify_Room("51eaa6f48facad5a04000001","T2","reddy apt",1,2700);
 
 
-
-/*
- * Showing all rooms
- *
- */
+//Showing all rooms
  var Show_All_Rooms = function(zres){
  	roomModel.find({}, function (err, results) {
  		if (err) {
@@ -536,45 +294,23 @@
 
 
 
-/*
- * Creating a notification and also update pending pays,tenant and room records must be available.
- *
- * @Param: Tenant id
- *
- */
- var Create_Notification = function(Pgiven_id){
+//Creating a notification and also update pending pays,tenant and room records must be available.
+ var Create_Notification = function(Pgiven_id,Tm,Ty){
  	tenantModel.findOne({_id:Pgiven_id},function (err, tenant) {
- 		if (err || !(tenant)) {
- 			//sorry
- 			//
- 			//fail
- 			return;
- 		};
+ 		if (err || !(tenant)) {return;};
  		var test_notification = new notificationModel();
  		test_notification.tenant_record = tenant._id ;
  		test_notification.room_record = tenant.room_record;
- 		test_notification.notes = "Please enter a note.. ";
+ 		test_notification.notes = "Note..";
+		test_notification.dm = Tm; // may 21 ,newly added to show correct date in notification
+ 		test_notification.dy = Ty; //june8 2014
  		test_notification.save(function(err){
- 			if (err) {
-				//sorry
-				//
-				//fail
-				return;
-			};
+ 			if (err) {return;};
 			console.log('Saved notification');
 			var new_pending_pays = tenant.pending_pays + 1;
 			tenantModel.findByIdAndUpdate(tenant._id,{pending_pays:new_pending_pays},null,function(err){
-				if(err){
-					//sorry
-					//
-					//fail
-					return;
-				};
+				if(err){return;};
 				console.log('Tenant pending pays Updated');
-				//done
-				//
-				//here
-
 			});
 		});
  	});
@@ -583,54 +319,19 @@
 
 
 
-/*
- * Remove notification and update pending pays,must have the respective tenant record active.
- *
- * @Param: Notification id
- *
- */
+//Remove notification and update pending pays,must have the respective tenant record active.
  var Remove_Notification = function(PNotification_id){
  	notificationModel.findById(PNotification_id, function (err, notification) {
- 		if (err || !(notification)) {
- 			//sorry
- 			//
- 			//fail
-
- 			console.log("No Notification !!");
- 			return;
- 		};
+ 		if (err || !(notification)) {console.log("No Notification !!");return;};
  		tenantModel.findById(notification.tenant_record,function(err,tenant){
- 			if (err || !(tenant)) {
- 				//sorry
- 				//
- 				//fail
-
- 				console.log("No tenant !!");
- 				return;
- 			};
+ 			if (err || !(tenant)) {console.log("No tenant !!");return;};
  			var new_pending_pays = tenant.pending_pays - 1;
  			tenantModel.findByIdAndUpdate(notification.tenant_record,{pending_pays:new_pending_pays},null,function(err){
- 				if(err){
- 					//sorry
- 					//
- 					//fail
-
- 					return;
- 				};
+ 				if(err){return;};
  				console.log('Tenant pending pays Updated');
  				notification.remove(function(err){
- 					if (err) {
- 						//sorry
- 						//
- 						//fail
-
- 						return;
- 					};
+ 					if (err) {return;};
  					console.log("Notification Removed !");
- 					//done
- 					//
- 					//here
-
  				});
  			});
  		});
@@ -639,27 +340,12 @@
 //Remove_Notification("51eafb42383529b605000001");
 
 
-
-/*
- * Modify notification,returns success even if not done.
- *
- * @Param: Notification id
- * @Param: New message
- *
- */
+//Modify notification,returns success even if not done.
  var Modify_Notification = function(PNotification_id,updated_note){
  	notificationModel.findByIdAndUpdate(PNotification_id,{notes:updated_note},null,function(err){
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		}else{
+ 		if (err) {return;}
+ 		else{
  			console.log("Updated Note");
- 			//done
- 			//
- 			//here
  		};
  	});
  };
@@ -667,19 +353,10 @@
 
 
 
-/*
- * Showing all notifications
- *
- */
+//Showing all notifications
  var Show_All_Notifications = function(zres){
  	notificationModel.find({}, function (err, results) {
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		};
+ 		if (err) {return;};
  		zres.json(results);
 
  	});
@@ -688,16 +365,7 @@
 
 
 
-/**
- * Initiate Minion !!
- *
- * Manually intiate the minion before using the app
- *
- * makeMinion();
- *
- *
- *
- */
+// Initiate Minion !! Manually intiate the minion before using the app -makeMinion();
  var makeMinion = function(){
  	var Today = new Date();
  	var Tdate = Today.getDate();
@@ -715,47 +383,26 @@
  	test_minion.minion_name = Hello_I_am;
 
  	test_minion.save(function(err){
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		};
+ 		if (err) {return;};
  		console.log("Initiated Minion !!");
- 		//done
- 		//
- 		//here
-
  	});
  };
  //makeMinion();
 
 
 
- /*
- * Showing all Minions
- *
- */
+//Showing all Minions
  var Show_All_Minions = function(zres){
  	minionModel.find({}, function (err, results) {
- 		if (err) {
- 			//sorry
- 			//
- 			//fail
-
- 			return;
- 		};
+ 		if (err) {return;};
  		zres.json(results);
 
  	});
  };
  //Show_All_Minions();
 
- /**
- * New Functions for date range
- *
- */
+
+//Functions for date range
  Date.prototype.addDays = function(days) {
    var dat = new Date(this.valueOf())
    dat.setDate(dat.getDate() + days);
@@ -772,22 +419,7 @@
  }
 
 
-/**
- * Test
- *
- *
- var dateArray = getDates(new Date(1+'-'+24+'-'+2014), new Date());
- for (dRangeI = 0; dRangeI < dateArray.length; dRangeI ++ ) {
-
-   console.log(dateArray[dRangeI].getDate());
- }*/
-
-
-/**
- * The job to be done by scheduler and also on app start..
- *
- *
- */
+//The job to be done by scheduler and also on app start..
  var fingerJob = function(){
 	//Executes once per every 2 hrs !!
 	var Today = new Date();
@@ -795,21 +427,12 @@
 	var Tmonth = Today.getMonth() + 1;
 	var Tyear = Today.getFullYear();
 	minionModel.findOne({"minion_name":Hello_I_am},function (err, minio) {
-		if (err || !(minio)) {
- 			// sorry
- 			//
- 			// fail
-
- 			return;
- 		};
+		if (err || !(minio)) {return;};
  		//now check if minio last notify is not today and proceed...
  		if (minio.minion_last_notify.date == Tdate &&
  			minio.minion_last_notify.month == Tmonth &&
  			minio.minion_last_notify.year == Tyear) {
- 		  	// Do Nothing !
- 		  	//
  		  	// Already updated notifications for today !!
-
  		  } else{
  		  	/** copy new logic here..done **/
  		  	var dateArray = getDates(new Date(minio.minion_last_notify.month+'-'+minio.minion_last_notify.date+'-'+minio.minion_last_notify.year), new Date());
@@ -818,25 +441,14 @@
  		  		Tdate = Today.getDate();
  		  		Tmonth = Today.getMonth() + 1;
  		  		Tyear = Today.getFullYear();
-         //console.log(Tdate+" "+Tmonth+" "+Tyear);
          if (minio.minion_last_notify.date == Tdate &&
          	minio.minion_last_notify.month == Tmonth &&
          	minio.minion_last_notify.year == Tyear) {
- 		  	// Do Nothing !
- 		  	//
  		  	// Already updated notifications for today !!
-
  		  } else{
       		// Notification not updated today
- 			//
- 			// Update now !!
-
  			if (Tdate == 29 && Tmonth == 2){
  				// Ignore this
- 				//
- 				// Date !!
-
- 				//return;
  			}else if (
  				(Tdate <= 27)||
  				((Tdate == 28)&&(Tmonth != 2))||
@@ -847,55 +459,19 @@
  					)||
  				(Tdate == 31)
  				){
- 				// Normal dates
- 				//
  				// Update for today only !!
-
- 				tenantModel.find().where('date_month_year.date').equals(Tdate).exec(function(err,results){
- 					if (err || !(results)) {
- 						// sorry
- 						//
- 						// fail
-
- 					};
- 					for (var i = results.length - 1; i >= 0; i--) {
- 							// Done
- 							//
- 							// here
-
- 							Create_Notification(results[i]._id);
- 						};
- 					});
+ 				findNCreateNote(Tdate,Tmonth,Tyear);
  			} else{
  				// 28 feb and months with only 30 days get here
- 				//
  				// Update records with date as today and above
-
- 				tenantModel.find().where('date_month_year.date').gte(Tdate).exec(function(err,results){
- 					if (err || !(results)) {
- 						//sorry
- 						//
- 						//fail
-
- 					};
- 					for (var i = results.length - 1; i >= 0; i--) {
- 							// Done
- 							//
- 							// here
-
- 							Create_Notification(results[i]._id);
- 						};
- 					});
+ 				findNCreateNoteG(Tdate,Tmonth,Tyear);
  			};
  			// Update the minion record
- 			//
- 			// here !!
-
  			minio.minion_last_notify.date = Tdate;
  			minio.minion_last_notify.month = Tmonth;
  			minio.minion_last_notify.year = Tyear;
- 			var mesg = "Updated Minion on " + Tdate + " - " + Tmonth + " - " + Tyear + " !!";
- 			minio.minion_action_stack.push(mesg);
+ 			//var mesg = "Updated Minion on " + Tdate + " - " + Tmonth + " - " + Tyear + " !!";
+ 			//minio.minion_action_stack.push(mesg);
  			minio.save();
  		}
 
@@ -904,10 +480,25 @@
 });
 }
 
-/**
- * logger  method  - for adding all logs to the minio.. TODO: needs to be tested..
- *
- */
+//find tenant who joined exactly on given day and get his details to notifcations
+var findNCreateNote = function(Tdate,Tm,Ty){
+	tenantModel.find().where('date_month_year.date').equals(Tdate).exec(function(err,results){
+		for (var i = results.length - 1; i >= 0; i--) {
+				Create_Notification(results[i]._id,Tm,Ty);
+			};
+		});
+}
+
+//find tenant who joined abov the date n get his details to notifications
+var findNCreateNoteG = function(Tdate,Tm,Ty){
+	tenantModel.find().where('date_month_year.date').gte(Tdate).exec(function(err,results){
+		for (var i = results.length - 1; i >= 0; i--) {
+				Create_Notification(results[i]._id,Tm,Ty);
+			};
+		});
+}
+
+//logger  method  - for adding all logs to the minio.. TODO: needs to be tested..
 var minioLogger = function(mesg){
 	minionModel.findOne({"minion_name":Hello_I_am},function (err, minio) {
 		minio.minion_action_stack.push(mesg);
@@ -915,18 +506,12 @@ var minioLogger = function(mesg){
 	});
 }
 
-/**
- * Fingermen Job - cron like scheduled function
- *
- */
+//Fingermen Job - cron like scheduled function
  var fingermen = schedule.scheduleJob(rule, fingerJob);
 
 
 
-/**
- * Handlers
- *
- */
+//Handlers
  app.get('/minions', function(req, res){
  	Show_All_Minions(res);
  });
@@ -959,10 +544,7 @@ var minioLogger = function(mesg){
 
 
 
-/**
- * Listeners
- *
- */
+// Listeners
  var port = process.env.PORT || 5000;
  app.listen(port, function() {
     console.log("Listening on " + port);
@@ -972,3 +554,5 @@ var minioLogger = function(mesg){
 
 
 console.log("TENENT WATCHER APP \nALOK PEPAKAYALA");
+
+//june9 performed massive cleanup to reduce loc 

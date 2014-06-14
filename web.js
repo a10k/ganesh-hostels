@@ -88,51 +88,49 @@ app.use(express.static(__dirname + '/public'));
 
 
 //Creating a tenant
- var Create_Tenant = function(Pname,Pin,Pdate,Pmn,Pyr,Ppp,Proom_id,Pcontact,Px){
- 	if ((typeof(Pname)=="string") && (typeof(Pin)=="string") && (typeof(Pdate)=="number") && (typeof(Pmn)=="number") && (typeof(Pyr)=="number") && (typeof(Ppp)=="number") && (typeof(Pcontact)=="number") && (typeof(Px)=="number")) {
- 		var test_tenant =new tenantModel();
- 		test_tenant.name_initial.name = Pname;
- 		test_tenant.name_initial.intial = Pin;
- 		test_tenant.date_month_year.date = Pdate;
- 		test_tenant.date_month_year.month = Pmn;
- 		test_tenant.date_month_year.year = Pyr;
- 		test_tenant.pending_pays = Ppp;
- 		test_tenant.room_record = Proom_id
- 		test_tenant.contact = Pcontact;
- 		test_tenant.extras = Px;
- 		test_tenant.save(function(err){
- 			if(err){return;};
- 			console.log("Saved Tenant: %s \n",Pname);
- 		});
- 	};
+ var Create_Tenant = function(Pname,Pin,Pdate,Pmn,Pyr,Ppp,Proom_id,Pcontact,Px,req,res){
+	var test_tenant =new tenantModel();
+	test_tenant.name_initial.name = Pname;
+	test_tenant.name_initial.intial = Pin;
+	test_tenant.date_month_year.date = Pdate;
+	test_tenant.date_month_year.month = Pmn;
+	test_tenant.date_month_year.year = Pyr;
+	test_tenant.pending_pays = 0;
+	test_tenant.room_record = Proom_id
+	test_tenant.contact = Pcontact;
+	test_tenant.extras = 0;
+	test_tenant.save(function(err){
+		if(err){res.send(req.body);return;};
+		console.log("Saved Tenant: %s \n",Pname);
+		res.send(req.body);
+	});
  };
  //Create_Tenant("alok","p",10,4,2013,0,"51eaa6f48facad5a04000001",9160299552,0);
 
 
 
 //Modify a tenant
- var Modify_Tenant = function(Pgiven_id,Pname,Pin,Pdate,Pmn,Pyr,Ppp,Proom_id,Pcontact,Px){
- 	if ((Pgiven_id) && (typeof(Pname)=="string") && (typeof(Pin)=="string") && (typeof(Pdate)=="number") && (typeof(Pmn)=="number") && (typeof(Pyr)=="number") && (typeof(Ppp)=="number") && (typeof(Pcontact)=="number") && (typeof(Px)=="number")) {
- 		var modifed = {
- 			name_initial:{
- 				name: Pname,
- 				intial: Pin,
- 			},
- 			date_month_year:{
- 				date: Pdate,
- 				month: Pmn,
- 				year: Pyr,
- 			},
- 			pending_pays: Ppp,
- 			room_record: Proom_id,
- 			contact: Pcontact,
- 			extras: Px,
- 		};
- 		tenantModel.findByIdAndUpdate(Pgiven_id,modifed,null,function(err){
- 			if(err){return;};
-			console.log('Tenant Modified');
-		});
- 	};
+ var Modify_Tenant = function(Pgiven_id,Pname,Pin,Pdate,Pmn,Pyr,Ppp,Proom_id,Pcontact,Px,req,res){
+	var modifed = {
+		name_initial:{
+			name: Pname,
+			intial: Pin,
+		},
+		date_month_year:{
+			date: Pdate,
+			month: Pmn,
+			year: Pyr,
+		},
+		pending_pays: Ppp,
+		room_record: Proom_id,
+		contact: Pcontact,
+		extras: Px,
+	};
+	tenantModel.findByIdAndUpdate(Pgiven_id,modifed,null,function(err){
+		if(err){return;};
+	console.log('Tenant Modified');
+	res.send(req.body);
+	});
  };
 //Modify_Tenant("51eaf5a7d024a0a105000001","raj","anr",10,4,2013,0,"51eaa6f48facad5a04000001",9160299552,0);
 
@@ -150,18 +148,21 @@ app.use(express.static(__dirname + '/public'));
 
 
 //Remove a tenant,make sure no notifications for given tenant id. (will cause serious errors otherwise).Workaround is dont remove if pending pay is > 0
- var Remove_Tenant = function(Pgiven_id){
+ var Remove_Tenant = function(Pgiven_id,req,res){
  	tenantModel.findById(Pgiven_id, function (err, tenant) {
- 		if (err) {return;};
+ 		if (err) {res.send(req.body);return;};
  		if (tenant && tenant.pending_pays > 0) {
  			console.log("Not removing the tenant");
+ 			res.send(req.body);
  		} else if(tenant && tenant.pending_pays === 0){
  			tenant.remove(function(err){
  				if (err) {return;};
  				console.log("Removed tenant");
+ 				res.send(req.body);
  			});
  		} else {
  			console.log("No such tenant found");
+ 			res.send(req.body);
  		};
  	});
  };
@@ -320,7 +321,7 @@ app.use(express.static(__dirname + '/public'));
 
 
 //Remove notification and update pending pays,must have the respective tenant record active.
- var Remove_Notification = function(PNotification_id){
+ var Remove_Notification = function(PNotification_id,req,res){
  	notificationModel.findById(PNotification_id, function (err, notification) {
  		if (err || !(notification)) {console.log("No Notification !!");return;};
  		tenantModel.findById(notification.tenant_record,function(err,tenant){
@@ -332,6 +333,7 @@ app.use(express.static(__dirname + '/public'));
  				notification.remove(function(err){
  					if (err) {return;};
  					console.log("Notification Removed !");
+ 					res.send(req.body);
  				});
  			});
  		});
@@ -341,11 +343,12 @@ app.use(express.static(__dirname + '/public'));
 
 
 //Modify notification,returns success even if not done.
- var Modify_Notification = function(PNotification_id,updated_note){
+ var Modify_Notification = function(PNotification_id,updated_note,req,res){
  	notificationModel.findByIdAndUpdate(PNotification_id,{notes:updated_note},null,function(err){
  		if (err) {return;}
  		else{
  			console.log("Updated Note");
+ 			res.send(req.body);
  		};
  	});
  };
@@ -524,6 +527,10 @@ var minioLogger = function(mesg){
  app.get('/notifications', function(req,res){
  	Show_All_Notifications(res);
  });
+
+
+
+
  app.post('/makeroom',function(req,res){
  	if ((req.body.Proom)&&(req.body.Phostel)&&(req.body.Pcapacity)&&(req.body.Ptariff)) {
  		Check_Room_Unique(req.body.Proom,req.body.Phostel,req.body.Pcapacity,req.body.Ptariff,req,res);
@@ -537,7 +544,44 @@ var minioLogger = function(mesg){
  app.post('/removeroom',function(req,res){
  	Check_Room_Vacant(req.body.roomID,req,res);//note that it also removes the room
  });
+
+
+
+
+
+ app.post('/maketen',function(req,res){
+ 	if ((req.body.Pname)&&(req.body.Proom_id)&&(req.body.Pdate)&&(req.body.Pmn)&&(req.body.Pdate)) {
+ 		Create_Tenant(req.body.Pname,req.body.Pin,req.body.Pdate,req.body.Pmn,req.body.Pyr,req.body.Ppp,req.body.Proom_id,req.body.Pcontact,req.body.Px,req,res);
+ 	};
+ });
+ app.post('/changeten',function(req,res){
+ 	if ((req.body.Pname)&&(req.body.Proom_id)&&(req.body.Pdate)&&(req.body.Pmn)&&(req.body.Pdate)) {
+ 		Modify_Tenant(req.body.Pgiven_id,req.body.Pname,req.body.Pin,req.body.Pdate,req.body.Pmn,req.body.Pyr,req.body.Ppp,req.body.Proom_id,req.body.Pcontact,req.body.Px,req,res);
+ 	};
+ });
+ app.post('/remten',function(req,res){
+ 	if (req.body.Pgiven_id) {
+ 		Remove_Tenant(req.body.Pgiven_id,req,res);
+ 	};
+ });
+
+
+ app.post('/modnot',function(req,res){
+ 	if (req.body.Pgiven_id) {
+ 		Modify_Notification(req.body.Pgiven_id,req.body.Pnote,req,res);
+ 	};
+ });
+ app.post('/remnot',function(req,res){
+ 	if (req.body.Pgiven_id) {
+ 		Remove_Notification(req.body.Pgiven_id,req,res);
+ 	};
+ });
+
+
+
+
  app.post('/',function(req,res){
+ 	console.log(req.body);
  	res.send(req.body);
  });
 

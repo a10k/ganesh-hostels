@@ -1,0 +1,190 @@
+<!doctype html>
+<html ng-app="people">
+<head>
+<!--
+This is a HTML page for all Tenant operations in  Tenant watcher app by Alok Pepakayala (c)
+
+
+README:
+	The idea of this page is to display all tenants from data base in a table like form,
+	
+TODO:
+	>Display all tenents in table
+	>add new ones
+	>modify
+	>remove old ones with no notifcations
+		all done
+        -->    
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+	<script type="text/javascript" src="/plax.js"></script>
+	<script src="/angular.min.js" ></script>
+	<script src="/tenantwatcher.js"></script>
+	<link rel="icon" type="image/png" href="/images/favicon.ico">
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+
+<body ng-controller="peopleControl" style="background:black">
+<div align= "center" style="margin:40px">
+
+	<!--Insert the main image logo here -->
+	<img style="margin:0px" class="near" src="/images/tw_main.jpg" width="620px"/>
+	<br>
+	<a href="lobby.html"><img style="margin:0px" class="far"  src="/images/tw_rooms.jpg"/></a>
+	<a href="start.html"><img style="margin:0px" class="veryfar" src="/images/tw_notif.jpg"/></a>
+	<a href="people.html"><img style="margin:0px" class="far" src="/images/tw_tenants.jpg"/></a>
+	<br>
+	<br>
+	
+	<!--Search the table with a cool search bar-->
+	<input class="input-lg near" 
+           		ng-model="query">
+	<br>
+    	<i class="glyphicon glyphicon-search "></i>
+	<br>
+
+
+	<!--Entire table markup -->
+	<table style="width: 70%"  
+        		class="table table-hover far " 
+           		align="center">
+		<thead>
+			<th class="info">
+				<a href="" ng-click="adder= !adder" ng-hide="adder == 0"><i class="glyphicon glyphicon-plus"></i></a>
+				<a href="" ng-click="adder= !adder" ng-hide="adder == 1"><i class="glyphicon glyphicon-minus"></i></a>
+			</th>
+			<th><a href="" ng-click="orderPropNotifications = 'name_initial.name'; reverse=!reverse">Name</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'name_initial.intial'; reverse=!reverse">Initial</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'room_record'; reverse=!reverse">Room</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'date_month_year.year'; reverse=!reverse">Year</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'date_month_year.month'; reverse=!reverse">Month</a></th>
+			<th><a href="" ng-click="orderPropNotifications = 'date_month_year.date'; reverse=!reverse">Date</a></th>
+                   		<th><a href="" ng-click="orderPropNotifications = 'contact'; reverse=!reverse">Contact</a></th>
+                   		<th><a href="" ng-click="orderPropNotifications = 'pending_pays'; reverse=!reverse">Dues</a></th>
+			<th>
+				<a href="" ng-click="refreshView()"><i class="glyphicon glyphicon-refresh"></i></a>
+			</th>
+		</thead>
+
+		<!--Adding a tenant row -->
+		<tr ng-hide="adder == 1" class="info">
+			<td><a href="">
+				<i ng-click="makePerson(newName,newInit,newContact,newOption._id,newDateY,newDateM,newDateD)" 
+					class="glyphicon glyphicon-floppy-disk"></i></a></td>
+			<td><input type="text" class="input-sm" ng-model="newName" value=""></td>
+			<td><input type="text" class="input-sm" ng-model="newInit" value=""></td>
+			<td>
+				<select data-ng-options="formatRoom(o._id) for o in rooms" data-ng-model="newOption"></select>
+			</td>
+			<td><input type="text" class="input-sm" ng-model="newDateY" value=""></td>
+			<td><input type="text" class="input-sm" ng-model="newDateM" value=""></td>
+			<td><input type="text" class="input-sm" ng-model="newDateD" value=""></td>
+			<td><input type="text" class="input-sm" ng-model="newContact" value=""></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr ng-repeat="person in people | filter:query | orderBy:orderPropNotifications:reverse" 
+				class="{{getStatus(person.pending_pays)}}" 
+				height="50px">
+			<!--Edit name  -->
+			<td>
+				<a href="" ng-click="checked = !checked" ng-hide="checked == 1">
+				<i ng-click="updatePerson(person._id,person.name_initial.name,person.name_initial.intial,person.contact,selectedOption._id,person.date_month_year.year,person.date_month_year.month,person.date_month_year.date,person.pending_pays)" 
+					class="glyphicon glyphicon-floppy-disk"></i></a>
+
+				<a href="" ng-click="checked= !checked" ng-hide="checked == 0">
+				<i class="glyphicon glyphicon-pencil"></i></a>
+			</td>
+
+			<!--name td control -->
+			<td ng-hide="checked">
+				<input type="text"   class="input-sm"   ng-model="person.name_initial.name" value="{{person.name_initial.name}}">
+			</td>
+			<td ng-hide="!checked">
+				<span>{{person.name_initial.name}}</span>
+			</td>
+
+			<!--intial td control -->
+			<td ng-hide="checked">
+				<input type="text"   class="input-sm"   ng-model="person.name_initial.intial" value="{{person.name_initial.intial}}">
+			</td>
+			<td ng-hide="!checked">
+				<span>{{person.name_initial.intial}}</span>
+			</td>
+
+			<!--room td control -->
+			<td ng-hide="checked">
+				{{setSelection(person.room_record)}}
+				<select class="select" data-ng-options="formatRoom(o._id) for o in rooms" data-ng-model="selectedOption"></select>
+			</td>
+			<td ng-hide="!checked">
+				<span>{{formatRoom(person.room_record) }}</span>
+			</td>
+
+			<!--year td control -->
+			<td ng-hide="checked">
+				<input type="text"   class="input-sm"   ng-model="person.date_month_year.year" value="{{person.date_month_year.year}}">
+			</td>
+			<td ng-hide="!checked">
+				<span>{{person.date_month_year.year}}</span>
+			</td>
+
+			<!--month td control -->
+			<td ng-hide="checked">
+				<input type="text"   class="input-sm"   ng-model="person.date_month_year.month" value="{{person.date_month_year.month}}">
+			</td>
+			<td ng-hide="!checked">
+				<span>{{person.date_month_year.month}}</span>
+			</td>
+
+
+			<!--date td control -->
+			<td ng-hide="checked">
+				<input type="text"   class="input-sm"   ng-model="person.date_month_year.date" value="{{person.date_month_year.date}}">
+			</td>
+			<td ng-hide="!checked">
+				<span>{{person.date_month_year.date}}</span>
+			</td>
+
+
+			<!--contact td control -->
+			<td ng-hide="checked">
+				<input type="text"   class="input-sm"   ng-model="person.contact" value="{{person.contact}}">
+			</td>
+			<td ng-hide="!checked">
+				<span>{{person.contact}}</span>
+			</td>
+
+			<!--pending pays; cant be changed from here -->
+			<td><span ng-bind="person.pending_pays"></span></td>
+
+			<!--Remove person  -->
+			<td ng-hide="checked">
+				<a href="" ng-hide="person.pending_pays > 0  " ng-click="remove(person._id)">╳</a>
+			</td>
+			<td ng-hide="!checked"></td>
+		</tr>
+	</table>
+
+
+
+	<!--Copyright-->
+<br>
+<br>
+<br>
+<img class="veryfar" src="/images/logo_name.svg" width="300px"/>
+<br>
+<div class="footer veryfar">&copy; Alok Pepakayala</div>
+</div>
+
+	<!-- plax -->
+<script type="text/javascript">
+        $(document).ready(function () {
+          $('.near').plaxify({"xRange":10,"yRange":5,"invert":true})
+          $('.veryfar').plaxify({"xRange":20,"yRange":30,"invert":true})
+          $('.far').plaxify({"xRange":30,"yRange":15,})
+          $.plax.enable()
+         })
+</script>
+</body>
+</html>

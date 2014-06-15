@@ -74,6 +74,8 @@ TODO:
                    ng-click="orderPropNotifications = 'occupants'; reverse=!reverse">Occupants</a></th>
 			<th><a href="" 
                    ng-click="orderPropNotifications = 'capacity'; reverse=!reverse">Capacity</a></th>
+                   		<th><a href="" 
+                   ng-click="orderPropNotifications = 'capacity-occupants'; reverse=!reverse">Vacancy !!</a></th>
 			<th><a href="" 
                    ng-click="orderPropNotifications = 'tariff'; reverse=!reverse">Tariff</a></th>
 			<th><a href="" 
@@ -99,6 +101,7 @@ TODO:
                        class="input-sm"   
                        ng-model="newRoomCapacity" 
                        value=""></td>
+                       		<td></td>
 			<td><input type="text"  
                        class="input-sm"   
                        ng-model="newRoomTariff" 
@@ -150,6 +153,9 @@ TODO:
                                          value="{{room.capacity}}"></td>
 			<td ng-hide="!checked"><span>{{room.capacity}}</span></td>
 
+
+			<!--Occupants; cant be changed from here -->
+			<td><span ng-bind="room.capacity - room.occupants"></span></td>
 
 			<!--Tariff for room -->
 			<td ng-hide="checked"><input type="text"  
